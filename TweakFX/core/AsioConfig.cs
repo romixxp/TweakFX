@@ -11,32 +11,13 @@ namespace TweakFX.core
     using NAudio.Wave;
     using NAudio.Wave.Asio;
 
-    public class AudioConfig
+    public class AsioConfig
     {
-        public string AsioDriverName { get; set; }
-        public int SampleRate { get; set; }
-        public int BufferSize { get; set; }
-        public int InputChannel { get; set; }
-        public int OutputChannels { get; set; }
-        
-        public AudioConfig()
-        {
-            var drivers = GetAvailableAsioDrivers();
-            AsioDriverName = drivers.Count > 0 ? drivers[0] : null;
-            SampleRate = 44100;
-            BufferSize = 512;
-            InputChannel = 0;
-            OutputChannels = 2;
-        }
-
-        public static List<string> GetAvailableAsioDrivers()
-        {
-            return new List<string>(AsioOut.GetDriverNames());
-        }
-
-        public override string ToString()
-        {
-            return $"ASIO: {AsioDriverName}, SR: {SampleRate}, Buffer: {BufferSize}, InCh: {InputChannel}, OutCh: {OutputChannels}";
-        }
+        public string DriverName { get; set; } = "Focusrite USB ASIO";
+        public int InputChannel { get; set; } = 0;
+        public int OutputChannel { get; set; } = 0;
+        public int SampleRate { get; set; } = 44100;
+        public int BufferSize { get; set; } = 128;
     }
+
 }

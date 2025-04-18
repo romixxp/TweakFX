@@ -10,29 +10,20 @@ namespace TweakFX.core
 
     public class EffectChain
     {
-        private readonly List<IAudioEffect> _effects = new List<IAudioEffect>();
+        private readonly List<IAudioEffect> _effects = new();
 
         public void AddEffect(IAudioEffect effect)
         {
             _effects.Add(effect);
         }
 
-        public void RemoveEffect(IAudioEffect effect)
+        public void Process(float[] buffer, int offset, int count)
         {
-            _effects.Remove(effect);
-        }
-
-        public byte[] Process(byte[] buffer, int bytesRecorded)
-        {
-            byte[] processed = buffer;
-
             foreach (var effect in _effects)
             {
-                processed = effect.Process(processed, bytesRecorded);
+                effect.Process(buffer, offset, count);
             }
-
-            return processed;
         }
     }
-
 }
+

@@ -1,63 +1,103 @@
 ﻿using System;
 using NAudio.Wave;
-using System.Windows.Forms; // Добавь это для MessageBox
+using System.Windows.Forms;
+using TweakFX; // Где лежит AsyncVirtualMicrophoneSender
+using System.Threading;
+using TweakFX.core.effects.distortion;
 
 namespace TweakFX.core
 {
-    public class AudioEngine
+    public class AudioEngine : IDisposable
     {
-        private AsioOut _asioOut;
-        private string _driverName;
-        private int _sampleRate;
-        private int _bufferSize;
+        private readonly AsioConfig _config;
+        private readonly AsioInput _asioInput;
+        private readonly AsioOutput _asioOutput;
+        private readonly EffectChain _effectChain;
+        private VBCableAudioSender sender = new VBCableAudioSender();
 
-        public AudioEngine(string driverName, int sampleRate, int bufferSize)
+        public AudioEngine(AsioConfig config)
         {
-            _driverName = driverName;
-            _sampleRate = sampleRate;
-            _bufferSize = bufferSize;
+            _config = config;
+            _asioInput = new AsioInput(config);
+            _asioOutput = new AsioOutput(config);
+            _effectChain = new EffectChain();
         }
 
-        public int SelectedSampleRate => _sampleRate;
-        public int SelectedBufferSize => _bufferSize;
+        public void AddEffect(IAudioEffect effect)
+        {
+            _effectChain.AddEffect(effect);
+        }/*
+        public void UpdDist(float newDistortionAmount)
+        {
+             = newDistortionAmount;
+        }
+
+        // Метод для обновления тона
+        public void UpdTone(float newTone)
+        {
+            _tone = newTone;
+        }
+
+        // Метод для обновления громкости
+        public void UpdVol(float newVolume)
+        {
+            _volume = newVolume;
+        }*/
 
         public void Start()
         {
-            try
-            {
-                if (_asioOut != null)
-                {
-                    _asioOut.Stop();
-                    _asioOut.Dispose();
-                }
+            // Добавляем эффект дисторшн
 
-                _asioOut = new AsioOut(_driverName);
-                _asioOut.InitRecordAndPlayback(null, 2, _sampleRate); // 2 канала на выход
-                _asioOut.Play();
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Ошибка инициализации ASIO драйвера: {ex.Message}");
-            }
-        }
+            _asioOutput.Init();
 
-        public void Restart(string driverName, int sampleRate, int bufferSize)
-        {
-            Stop();
-            _driverName = driverName;
-            _sampleRate = sampleRate;
-            _bufferSize = bufferSize;
-            Start();
+            //_effectChain.AddEffect(new Clipper(threshold: 0.5f));
+            _asioInput.AudioAvailable += (s, buffer) =>
+            {
+                //_effectChain.Process(buffer, 0, buffer.Length); // Применяем все эффекты
+                _effectChain.Process(buffer, 0, buffer.Length);
+                var stereoBuffer = MonoToStereo(buffer);
+                _asioOutput.Write(stereoBuffer);
+
+                var byteBuffer = FloatToPcm16Bytes(stereoBuffer);
+                byte[] myPcmBuffer = byteBuffer; // должен быть PCM-совместим с WaveFormat
+                sender.SendBuffer(myPcmBuffer);
+            };
+
+            _asioInput.Start();
         }
 
         public void Stop()
         {
-            if (_asioOut != null)
+            _asioInput.Stop();
+            _asioOutput.Stop();
+        }
+
+        private float[] MonoToStereo(float[] mono)
+        {
+            float[] stereo = new float[mono.Length * 2];
+            for (int i = 0; i < mono.Length; i++)
             {
-                _asioOut.Stop();
-                _asioOut.Dispose();
-                _asioOut = null;
+                stereo[2 * i] = mono[i];      // Left
+                stereo[2 * i + 1] = mono[i];  // Right
             }
+            return stereo;
+        }
+
+        private byte[] FloatToPcm16Bytes(float[] floatBuffer)
+        {
+            byte[] byteBuffer = new byte[floatBuffer.Length * 2];
+            for (int i = 0; i < floatBuffer.Length; i++)
+            {
+                short sample = (short)(Math.Clamp(floatBuffer[i], -1.0f, 1.0f) * short.MaxValue);
+                byteBuffer[i * 2] = (byte)(sample & 0xFF);
+                byteBuffer[i * 2 + 1] = (byte)((sample >> 8) & 0xFF);
+            }
+            return byteBuffer;
+        }
+
+        public void Dispose()
+        {
+            Stop();
         }
     }
 }

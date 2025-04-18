@@ -34,7 +34,7 @@
             label2 = new Label();
             label3 = new Label();
             knobDist = new dfsa.ui.controls.DistortionKnob();
-            knobClip = new dfsa.ui.controls.DistortionKnob();
+            knobTone = new dfsa.ui.controls.DistortionKnob();
             knobVol = new dfsa.ui.controls.DistortionKnob();
             label4 = new Label();
             contextMenuStrip1 = new ContextMenuStrip(components);
@@ -52,7 +52,7 @@
             panel1.Dock = DockStyle.Top;
             panel1.Location = new Point(0, 0);
             panel1.Name = "panel1";
-            panel1.Size = new Size(320, 30);
+            panel1.Size = new Size(584, 30);
             panel1.TabIndex = 0;
             // 
             // label1
@@ -60,7 +60,7 @@
             label1.AutoSize = true;
             label1.Font = new Font("Segoe UI", 14.25F, FontStyle.Regular, GraphicsUnit.Point, 204);
             label1.ForeColor = Color.White;
-            label1.Location = new Point(32, 180);
+            label1.Location = new Point(31, 120);
             label1.Name = "label1";
             label1.Size = new Size(95, 25);
             label1.TabIndex = 2;
@@ -71,11 +71,11 @@
             label2.AutoSize = true;
             label2.Font = new Font("Segoe UI", 14.25F, FontStyle.Regular, GraphicsUnit.Point, 204);
             label2.ForeColor = Color.White;
-            label2.Location = new Point(152, 180);
+            label2.Location = new Point(148, 120);
             label2.Name = "label2";
-            label2.Size = new Size(45, 25);
+            label2.Size = new Size(52, 25);
             label2.TabIndex = 4;
-            label2.Text = "Clip";
+            label2.Text = "Tone";
             label2.Click += label2_Click;
             // 
             // label3
@@ -83,7 +83,7 @@
             label3.AutoSize = true;
             label3.Font = new Font("Wasted", 36F, FontStyle.Bold, GraphicsUnit.Point, 0);
             label3.ForeColor = Color.White;
-            label3.Location = new Point(57, 35);
+            label3.Location = new Point(240, 78);
             label3.Name = "label3";
             label3.Size = new Size(227, 58);
             label3.TabIndex = 5;
@@ -91,30 +91,30 @@
             // 
             // knobDist
             // 
-            knobDist.Location = new Point(27, 96);
+            knobDist.Location = new Point(26, 36);
             knobDist.Name = "knobDist";
             knobDist.Size = new Size(100, 100);
             knobDist.TabIndex = 6;
             knobDist.Text = "distortionKnob3";
             knobDist.Value = 0F;
             // 
-            // knobClip
+            // knobTone
             // 
-            knobClip.Location = new Point(133, 116);
-            knobClip.Name = "knobClip";
-            knobClip.Size = new Size(80, 80);
-            knobClip.TabIndex = 7;
-            knobClip.Text = "distortionKnob4";
-            knobClip.Value = 0F;
+            knobTone.Location = new Point(132, 56);
+            knobTone.Name = "knobTone";
+            knobTone.Size = new Size(80, 80);
+            knobTone.TabIndex = 7;
+            knobTone.Text = "distortionKnob4";
+            knobTone.Value = 0F;
             // 
             // knobVol
             // 
-            knobVol.Location = new Point(204, 116);
+            knobVol.Location = new Point(488, 56);
             knobVol.Name = "knobVol";
             knobVol.Size = new Size(80, 80);
             knobVol.TabIndex = 8;
             knobVol.Text = "distortionKnob5";
-            knobVol.Value = 0F;
+            knobVol.Value = 0.5F;
             knobVol.Click += knobVol_Click;
             // 
             // label4
@@ -122,7 +122,7 @@
             label4.AutoSize = true;
             label4.Font = new Font("Segoe UI", 14.25F, FontStyle.Regular, GraphicsUnit.Point, 204);
             label4.ForeColor = Color.White;
-            label4.Location = new Point(207, 180);
+            label4.Location = new Point(491, 120);
             label4.Name = "label4";
             label4.Size = new Size(76, 25);
             label4.TabIndex = 9;
@@ -172,12 +172,12 @@
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = Color.FromArgb(21, 23, 31);
-            ClientSize = new Size(320, 239);
+            ClientSize = new Size(584, 170);
             ContextMenuStrip = contextMenuStrip1;
             Controls.Add(label4);
             Controls.Add(label2);
             Controls.Add(knobVol);
-            Controls.Add(knobClip);
+            Controls.Add(knobTone);
             Controls.Add(label1);
             Controls.Add(knobDist);
             Controls.Add(label3);
@@ -201,7 +201,7 @@
         private controls.DistortionKnob distortionKnob2;
         private Label label3;
         private controls.DistortionKnob knobDist;
-        private controls.DistortionKnob knobClip;
+        private controls.DistortionKnob knobTone;
         private controls.DistortionKnob knobVol;
         private Label label4;
         private ContextMenuStrip contextMenuStrip1;

@@ -35,6 +35,7 @@
             CBSampleRate = new ComboBox();
             label4 = new Label();
             groupBox1 = new GroupBox();
+            button1 = new Button();
             lbRTLat = new Label();
             groupBox1.SuspendLayout();
             SuspendLayout();
@@ -96,6 +97,7 @@
             // 
             // groupBox1
             // 
+            groupBox1.Controls.Add(button1);
             groupBox1.Controls.Add(lbRTLat);
             groupBox1.Controls.Add(CBSampleRate);
             groupBox1.Controls.Add(label2);
@@ -105,10 +107,20 @@
             groupBox1.Controls.Add(label3);
             groupBox1.Location = new Point(12, 12);
             groupBox1.Name = "groupBox1";
-            groupBox1.Size = new Size(279, 135);
+            groupBox1.Size = new Size(279, 163);
             groupBox1.TabIndex = 7;
             groupBox1.TabStop = false;
             groupBox1.Text = "ASIO Streaming Settings";
+            // 
+            // button1
+            // 
+            button1.Location = new Point(162, 115);
+            button1.Name = "button1";
+            button1.Size = new Size(111, 42);
+            button1.TabIndex = 8;
+            button1.Text = "Show Control Panel (if possible)";
+            button1.UseVisualStyleBackColor = true;
+            button1.Click += button1_Click;
             // 
             // lbRTLat
             // 
@@ -123,7 +135,7 @@
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(304, 158);
+            ClientSize = new Size(304, 187);
             Controls.Add(groupBox1);
             Name = "AsioVisualConfig";
             Text = "AsioVisualConfig";
@@ -142,5 +154,6 @@
         private Label label4;
         private GroupBox groupBox1;
         private Label lbRTLat;
+        private Button button1;
     }
 }

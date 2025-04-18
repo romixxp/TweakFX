@@ -73,6 +73,11 @@ namespace TweakFX.ui
             ShowDeviceInfo();
         }
 
+        private void button1_Click(object sender, EventArgs e)
+        {
+
+        }
+
         public string SelectedDriver => CBDrivers.SelectedItem?.ToString();
         public int SelectedSampleRate => (int)CBSampleRate.SelectedItem;
         public int SelectedBufferSize => (int)CBBufferSize.SelectedItem;
