@@ -18,7 +18,7 @@ namespace TweakFX.core
         public int BufferSize { get; set; }
         public int InputChannel { get; set; }
         public int OutputChannels { get; set; }
-
+        
         public AudioConfig()
         {
             var drivers = GetAvailableAsioDrivers();
