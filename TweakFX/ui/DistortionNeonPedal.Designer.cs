@@ -45,6 +45,7 @@ namespace dfsa.ui
             loadToolStripMenuItem = new ToolStripMenuItem();
             pereferencesToolStripMenuItem = new ToolStripMenuItem();
             exitToolStripMenuItem = new ToolStripMenuItem();
+            oscilloscope = new TweakFX.ui.controls.VisualAudio.Oscilloscope();
             contextMenuStrip1.SuspendLayout();
             SuspendLayout();
             // 
@@ -170,12 +171,22 @@ namespace dfsa.ui
             exitToolStripMenuItem.Text = "Exit";
             exitToolStripMenuItem.Click += exitToolStripMenuItem_Click;
             // 
+            // oscilloscope
+            // 
+            oscilloscope.BackColor = Color.Gray;
+            oscilloscope.Location = new Point(12, 173);
+            oscilloscope.Name = "oscilloscope";
+            oscilloscope.Size = new Size(232, 94);
+            oscilloscope.TabIndex = 10;
+            oscilloscope.Text = "oscilloscope1";
+            // 
             // DistortionNeonPedal
             // 
             AutoScaleMode = AutoScaleMode.None;
             BackColor = Color.FromArgb(21, 23, 31);
             ClientSize = new Size(604, 461);
             ContextMenuStrip = contextMenuStrip1;
+            Controls.Add(oscilloscope);
             Controls.Add(label4);
             Controls.Add(label2);
             Controls.Add(knobVol);
@@ -212,6 +223,6 @@ namespace dfsa.ui
         private ToolStripMenuItem saveToolStripMenuItem;
         private ToolStripMenuItem loadToolStripMenuItem;
         private ToolStripMenuItem exitToolStripMenuItem;
-        private OscilloscopeControl oscilloscopeControl1;
+        private TweakFX.ui.controls.VisualAudio.Oscilloscope oscilloscope;
     }
 }
