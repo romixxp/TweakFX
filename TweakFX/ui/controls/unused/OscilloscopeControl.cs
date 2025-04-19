@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TweakFX.ui.controls
+namespace TweakFX.ui.controls.unused
 {
     using System;
     using System.Drawing;
@@ -22,7 +22,7 @@ namespace TweakFX.ui.controls
             private set
             {
                 audioBuffer = value;
-                this.Invalidate(); // Перерисовываем при изменении данных
+                Invalidate(); // Перерисовываем при изменении данных
             }
         }
 
@@ -32,12 +32,12 @@ namespace TweakFX.ui.controls
 
         public OscilloscopeControl()
         {
-            this.DoubleBuffered = true;
-            this.BackColor = Color.Black;
+            DoubleBuffered = true;
+            BackColor = Color.Black;
 
             redrawTimer = new Timer();
             redrawTimer.Interval = 30;
-            redrawTimer.Tick += (s, e) => this.Invalidate();
+            redrawTimer.Tick += (s, e) => Invalidate();
             redrawTimer.Start();
         }
 
@@ -54,7 +54,7 @@ namespace TweakFX.ui.controls
         {
             base.OnPaint(e);
             var g = e.Graphics;
-            g.Clear(this.BackColor);
+            g.Clear(BackColor);
 
             // Если данные не загружены, ничего не рисуем
             if (audioBuffer == null || audioBuffer.Length < 2)
@@ -64,9 +64,9 @@ namespace TweakFX.ui.controls
 
             Pen oscilloPen = new Pen(Color.Lime, 1);
 
-            int midY = this.ClientSize.Height / 2;
-            float width = this.ClientSize.Width;
-            float height = this.ClientSize.Height;
+            int midY = ClientSize.Height / 2;
+            float width = ClientSize.Width;
+            float height = ClientSize.Height;
             int samples = audioBuffer.Length;
 
             // Рисуем осциллограмму
@@ -75,8 +75,8 @@ namespace TweakFX.ui.controls
                 float x1 = (float)i / (samples - 1) * width;
                 float x2 = (float)(i + 1) / (samples - 1) * width;
 
-                float y1 = midY - (audioBuffer[i]) * (height / 2);
-                float y2 = midY - (audioBuffer[i + 1]) * (height / 2);
+                float y1 = midY - audioBuffer[i] * (height / 2);
+                float y2 = midY - audioBuffer[i + 1] * (height / 2);
 
                 g.DrawLine(oscilloPen, x1, y1, x2, y2);
             }
@@ -86,8 +86,8 @@ namespace TweakFX.ui.controls
         {
             Pen gridPen = new Pen(Color.FromArgb(30, Color.White));
 
-            float width = this.ClientSize.Width;
-            float height = this.ClientSize.Height;
+            float width = ClientSize.Width;
+            float height = ClientSize.Height;
 
             for (int x = 0; x < width; x += GridSpacing)
             {
@@ -103,7 +103,7 @@ namespace TweakFX.ui.controls
         // Метод для явного обновления и перерисовки
         public void RefreshWave()
         {
-            this.Invalidate();
+            Invalidate();
         }
     }
 }

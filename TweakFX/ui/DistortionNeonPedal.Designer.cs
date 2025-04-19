@@ -1,3 +1,5 @@
+using TweakFX.ui.controls.unused;
+
 namespace dfsa.ui
 {
     partial class DistortionNeonPedal
@@ -210,6 +212,6 @@ namespace dfsa.ui
         private ToolStripMenuItem saveToolStripMenuItem;
         private ToolStripMenuItem loadToolStripMenuItem;
         private ToolStripMenuItem exitToolStripMenuItem;
-        private TweakFX.ui.controls.OscilloscopeControl oscilloscopeControl1;
+        private OscilloscopeControl oscilloscopeControl1;
     }
 }
