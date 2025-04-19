@@ -169,8 +169,8 @@
             // 
             // DistortionNeonPedal
             // 
-            AutoScaleDimensions = new SizeF(7F, 15F);
-            AutoScaleMode = AutoScaleMode.Font;
+            //AutoScaleDimensions = new SizeF(7F, 15F);
+            AutoScaleMode = AutoScaleMode.None;
             BackColor = Color.FromArgb(21, 23, 31);
             ClientSize = new Size(584, 170);
             ContextMenuStrip = contextMenuStrip1;
