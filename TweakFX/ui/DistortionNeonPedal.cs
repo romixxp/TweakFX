@@ -18,6 +18,8 @@ namespace dfsa.ui
         private Clipper _distortionEffect;
         AudioEngine engine;
         private System.Windows.Forms.Timer oscilloscopeTimer;
+        private System.Windows.Forms.Timer MagnitudeSpectrogramTimer;
+        private SpectrogramControl spectrogram;
         public DistortionNeonPedal()
         {
             InitializeComponent();
@@ -27,6 +29,13 @@ namespace dfsa.ui
             // Пример: панель закреплена вверху и ее свойства установлены в дизайнере
             // topPanel.Dock = DockStyle.Top; // Убедитесь, что панель докируется к верху формы
             panel1.Cursor = Cursors.Default; // Установим курсор для перетаскивания
+
+            spectrogram = new SpectrogramControl
+            {
+                Dock = DockStyle.Fill
+            };
+            Controls.Add(spectrogram);
+
         }
 
         private void topPanel_MouseDown(object sender, MouseEventArgs e)
@@ -71,7 +80,7 @@ namespace dfsa.ui
             //_distortionEffect = new Clipper(distortionAmount: knobDist.Value, tone: knobTone.Value, volume: knobVol.Value);
             knobVol.ValueChanged += (s, e) =>
             {
-                engine.UpdVol(knobVol.Value*10);
+                engine.UpdVol(knobVol.Value * 10);
             };
             knobTone.ValueChanged += (s, e) =>
             {
@@ -79,7 +88,7 @@ namespace dfsa.ui
             };
             knobDist.ValueChanged += (s, e) =>
             {
-                engine.UpdDist(knobDist.Value*10);
+                engine.UpdDist(knobDist.Value * 10);
             };
             // Можно добавить эффекты
             // engine.AddEffect(new MyReverb());
@@ -87,21 +96,36 @@ namespace dfsa.ui
             oscilloscopeTimer = new System.Windows.Forms.Timer
             {
                 Interval = 20
+            };          
+            MagnitudeSpectrogramTimer = new System.Windows.Forms.Timer
+            {
+                Interval = 5
             };
 
             oscilloscopeTimer.Tick += (s, e) =>
             {
                 float[] buffer = engine?.GetLatestBuffer(); // ты должен реализовать метод ниже в AudioEngine
                 if (buffer != null && buffer.Length > 0)
+                {
                     oscilloscope.UpdateBuffer(buffer);
+                }
+            };
+            MagnitudeSpectrogramTimer.Tick += (s, e) =>
+            {
+                float[] buffer = engine?.GetLatestBuffer(); // ты должен реализовать метод ниже в AudioEngine
+                if (buffer != null && buffer.Length > 0)
+                {
+                    spectrogram.AddFrame(buffer);
+                }
             };
             oscilloscopeTimer.Start();
+            MagnitudeSpectrogramTimer.Start();
             engine.Start();
             float[] audioData = new float[630];
             Random random = new();
             for (int i = 0; i < audioData.Length; i++)
             {
-                audioData[i] = random.Next(-100,100)/100f; // Пример синусоиды
+                audioData[i] = random.Next(-100, 100) / 100f; // Пример синусоиды
             }
         }
 
@@ -140,6 +164,23 @@ namespace dfsa.ui
         {
             engine?.Stop();
         }
+
+        private void panel2_Paint(object sender, PaintEventArgs e)
+        {
+
+        }
+        private void GenerateTestData()
+        {
+            /*          float[] magnitudes = new float[512];
+                      double t = DateTime.Now.TimeOfDay.TotalSeconds;
+                      for (int i = 0; i < magnitudes.Length; i++)
+                      {
+                          magnitudes[i] = (float)(0.5 * (Math.Sin(i * 0.05 + t * 5) + 1));
+                      }  */
+
+    
+        }
+
 
     }
 }
