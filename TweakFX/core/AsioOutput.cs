@@ -7,49 +7,35 @@ using System.Threading.Tasks;
 namespace TweakFX.core
 {
     using NAudio.Wave;
-    using NAudio.Wave.Asio;
 
     public class AsioOutput
     {
+        private readonly AsioConfig _config;
         private AsioOut _asioOut;
         private BufferedWaveProvider _bufferedWaveProvider;
-        private AudioConfig _config;
 
-        public AsioOutput(AudioConfig config)
+        public AsioOutput(AsioConfig config)
         {
             _config = config;
-            Initialize();
         }
 
-        private void Initialize()
+        public void Init()
         {
-            _asioOut = new AsioOut(_config.AsioDriverName);
-            _asioOut.InitRecordAndPlayback(null, _config.OutputChannels, _config.SampleRate);
-
-            _bufferedWaveProvider = new BufferedWaveProvider(
-                new WaveFormat(_config.SampleRate, 16, _config.OutputChannels)
-            );
-
-            _asioOut.Init(_bufferedWaveProvider);
+            _asioOut = new AsioOut(_config.DriverName);
+            WaveFormat format = WaveFormat.CreateIeeeFloatWaveFormat(_config.SampleRate, 2);
+            _bufferedWaveProvider = new BufferedWaveProvider(format);
+            _asioOut.Init(_bufferedWaveProvider); // только это
             _asioOut.Play();
         }
 
-        public void Send(byte[] buffer, int count)
+        public void Write(float[] buffer)
         {
-            _bufferedWaveProvider.AddSamples(buffer, 0, count);
+            byte[] byteBuffer = new byte[buffer.Length * 4];
+            Buffer.BlockCopy(buffer, 0, byteBuffer, 0, byteBuffer.Length);
+            _bufferedWaveProvider.AddSamples(byteBuffer, 0, byteBuffer.Length);
+
         }
 
-        public void Stop()
-        {
-            _asioOut?.Stop();
-            _asioOut?.Dispose();
-        }
-
-        public void Restart()
-        {
-            Stop();
-            Initialize();
-        }
+        public void Stop() => _asioOut?.Stop();
     }
-
 }

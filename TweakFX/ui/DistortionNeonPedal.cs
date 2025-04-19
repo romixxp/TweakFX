@@ -1,5 +1,6 @@
 ﻿using NAudio.Wave;
 using TweakFX.core;
+using TweakFX.core.effects.distortion;
 using TweakFX.ui;
 
 namespace dfsa.ui
@@ -8,9 +9,8 @@ namespace dfsa.ui
     {
         private bool isDragging = false;
         private Point offset;
-        private BufferedWaveProvider buffer;
-        private float[] floatBuffer;
-        private AudioEngine _audioEngine;
+        private Clipper _distortionEffect;
+        AudioEngine engine;
         public DistortionNeonPedal()
         {
             InitializeComponent();
@@ -50,12 +50,35 @@ namespace dfsa.ui
             panel1.MouseDown += topPanel_MouseDown;
             panel1.MouseUp += topPanel_MouseUp;
             panel1.MouseMove += topPanel_MouseMove;
-            string driverName = "Focusrite USB ASIO"; // Здесь можешь брать из настроек
-            int sampleRate = 44100;             // Здесь тоже можно брать из настроек
-            int bufferSize = 512;
+            var config = new AsioConfig
+            {
+                DriverName = "Focusrite USB ASIO",
+                InputChannel = 0,
+                OutputChannel = 0,
+                SampleRate = 44100
+            };
+            engine = new AudioEngine(config);
+            knobVol.Value = 0.5f;
+            knobTone.Value = 0.5f;
+            knobDist.Value = 0.5f;
+            _distortionEffect = new Clipper(distortionAmount: knobDist.Value, tone: knobTone.Value, volume: knobVol.Value);
+            knobVol.ValueChanged += (s, e) =>
+            {
+                _distortionEffect.UpdateVolume(knobVol.Value);
+            };
+            knobTone.ValueChanged += (s, e) =>
+            {
+                _distortionEffect.UpdateTone(knobTone.Value);
+            };
+            knobDist.ValueChanged += (s, e) =>
+            {
+                _distortionEffect.UpdateDistortionAmount(knobDist.Value);
+            };
+            // Можно добавить эффекты
+            // engine.AddEffect(new MyReverb());
+            // engine.AddEffect(new MyCompressor());
 
-            _audioEngine = new AudioEngine(driverName, sampleRate, bufferSize);
-            _audioEngine.Start();
+            engine.Start();
         }
 
         private void label2_Click(object sender, EventArgs e)
@@ -65,19 +88,22 @@ namespace dfsa.ui
 
         private void preferencesToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            AsioVisualConfig virtconf = new AsioVisualConfig();
-            if (virtconf.ShowDialog() == DialogResult.OK)
+            //AsioVisualConfig virtconf = new AsioVisualConfig();
+            /*if (virtconf.ShowDialog() == DialogResult.OK)
             {
                 string driverName = virtconf.SelectedDriver;
                 int sampleRate = virtconf.SelectedSampleRate;
                 int bufferSize = virtconf.SelectedBufferSize;
 
-                _audioEngine.Restart(driverName, sampleRate, bufferSize);
-            }
+                engine.Restart(driverName, sampleRate, bufferSize);
+            }*/
+            AsioInput asioInput = new AsioInput();
+            asioInput.ShowControlPanel();
         }
 
         private void exitToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            engine.Stop();
             Application.Exit();
         }
 
@@ -88,7 +114,7 @@ namespace dfsa.ui
 
         private void DistortionNeonPedal_FormClosing(object sender, FormClosingEventArgs e)
         {
-            _audioEngine?.Stop();
+            engine?.Stop();
         }
 
     }

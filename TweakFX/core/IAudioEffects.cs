@@ -8,6 +8,6 @@ namespace TweakFX.core
 {
     public interface IAudioEffect
     {
-        byte[] Process(byte[] buffer, int bytesRecorded);
+        void Process(float[] buffer, int offset, int count);
     }
 }

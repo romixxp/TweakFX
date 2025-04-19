@@ -8,62 +8,44 @@ namespace TweakFX.core
 {
     using NAudio.Wave;
     using NAudio.Wave.Asio;
+    using System;
 
     public class AsioInput
     {
-        private AsioOut _asio;
-        private AudioConfig _config;
+        private readonly AsioConfig _config;
+        private AsioOut _asioOut;
+        public event EventHandler<float[]> AudioAvailable;
 
-        public event EventHandler<AudioAvailableEventArgs> OnAudioAvailable;
-
-        public AsioInput(AudioConfig config)
+        public AsioInput(AsioConfig config)
         {
             _config = config;
-            Initialize();
+        }
+        public AsioInput()
+        {
+
         }
 
-        private void Initialize()
+        public void Start()
         {
-            _asio = new AsioOut(_config.AsioDriverName);
-            _asio.InitRecordAndPlayback(null, _config.OutputChannels, _config.SampleRate);
-            _asio.AudioAvailable += Asio_AudioAvailable;
-        }
+            _asioOut = new AsioOut(_config.DriverName);
+            _asioOut.InitRecordAndPlayback(null, 1, _config.SampleRate);
 
-        private void Asio_AudioAvailable(object sender, AsioAudioAvailableEventArgs e)
-        {
-            int channels = _config.OutputChannels;
-            int samples = e.SamplesPerBuffer * channels;
-            float[] floatBuffer = new float[samples];
-            e.GetAsInterleavedSamples(floatBuffer);
-
-            byte[] byteBuffer = new byte[samples * 2]; // 16 бит = 2 байта
-
-            for (int i = 0; i < samples; i++)
+            _asioOut.AudioAvailable += (s, e) =>
             {
-                short sample = (short)(Math.Max(Math.Min(floatBuffer[i], 1.0f), -1.0f) * 32767.0f);
-                byteBuffer[i * 2] = (byte)(sample & 0xFF);
-                byteBuffer[i * 2 + 1] = (byte)((sample >> 8) & 0xFF);
-            }
+                var buffer = new float[e.SamplesPerBuffer];
+                e.GetAsInterleavedSamples(buffer);
+                AudioAvailable?.Invoke(this, buffer);
+            };
 
-            OnAudioAvailable?.Invoke(this, new AudioAvailableEventArgs(byteBuffer, byteBuffer.Length));
+            _asioOut.Play();
 
-            e.WrittenToOutputBuffers = true;
         }
 
-
-        public void Start() => _asio.Play();
-
-        public void Stop()
+        public void ShowControlPanel()
         {
-            _asio?.Stop();
-            _asio?.Dispose();
+            var asioOut = new AsioOut("Focusrite USB ASIO"); // или выбрать по имени из AsioOut.GetDriverNames()
+            asioOut.ShowControlPanel(); // ← Открывает ASIO панель
         }
-
-        public void Restart()
-        {
-            Stop();
-            Initialize();
-            Start();
-        }
+        public void Stop() => _asioOut?.Stop();
     }
 }
