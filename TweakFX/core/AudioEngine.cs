@@ -4,11 +4,14 @@ using System.Windows.Forms;
 using TweakFX; // Где лежит AsyncVirtualMicrophoneSender
 using System.Threading;
 using TweakFX.core.effects.distortion;
+using TweakFX.ui.controls;
+using dfsa.ui;
 
 namespace TweakFX.core
 {
     public class AudioEngine : IDisposable
     {
+        public event Action<float[]> OnBufferProcessed;
         private readonly AsioConfig _config;
         private readonly AsioInput _asioInput;
         private readonly AsioOutput _asioOutput;
@@ -52,25 +55,34 @@ namespace TweakFX.core
 
         public void Start()
         {
-            // Добавляем эффект дисторшн
-
             _asioOutput.Init();
-
-            //_effectChain.AddEffect(new core.effects.delay_reeverb.Delay(500));
+            DistortionNeonPedal form = new();
             _effectChain.AddEffect(effect);
             _asioInput.AudioAvailable += (s, buffer) =>
             {
-                //_effectChain.Process(buffer, 0, buffer.Length); // Применяем все эффекты
                 _effectChain.Process(buffer, 0, buffer.Length);
                 var stereoBuffer = MonoToStereo(buffer);
                 _asioOutput.Write(stereoBuffer);
+                sender.SendBuffer(FloatToPcm16Bytes(stereoBuffer));
 
-                var byteBuffer = FloatToPcm16Bytes(stereoBuffer);
-                byte[] myPcmBuffer = byteBuffer; // должен быть PCM-совместим с WaveFormat
-                sender.SendBuffer(myPcmBuffer);
+                lock (_bufferLock)
+                {
+                    _lastBuffer = buffer.ToArray(); // сохраняем только float[]
+                }
             };
 
             _asioInput.Start();
+        }
+
+        private float[] _lastBuffer = Array.Empty<float>();
+        private readonly object _bufferLock = new();
+
+        public float[] GetLatestBuffer()
+        {
+            lock (_bufferLock)
+            {
+                return _lastBuffer.ToArray(); // возвращаем копию
+            }
         }
 
         public void Stop()

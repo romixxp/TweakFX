@@ -1,7 +1,13 @@
+using System.Windows.Forms;
+using System;
 using NAudio.Wave;
 using TweakFX.core;
 using TweakFX.core.effects.distortion;
 using TweakFX.ui;
+using TweakFX.ui.controls;
+using TweakFX.ui.controls.VisualAudio;
+using TweakFX.ui.controls.unused;
+
 
 namespace dfsa.ui
 {
@@ -11,6 +17,7 @@ namespace dfsa.ui
         private Point offset;
         private Clipper _distortionEffect;
         AudioEngine engine;
+        private System.Windows.Forms.Timer oscilloscopeTimer;
         public DistortionNeonPedal()
         {
             InitializeComponent();
@@ -77,8 +84,25 @@ namespace dfsa.ui
             // Можно добавить эффекты
             // engine.AddEffect(new MyReverb());
             // engine.AddEffect(new MyCompressor());
+            oscilloscopeTimer = new System.Windows.Forms.Timer
+            {
+                Interval = 20
+            };
 
+            oscilloscopeTimer.Tick += (s, e) =>
+            {
+                float[] buffer = engine?.GetLatestBuffer(); // ты должен реализовать метод ниже в AudioEngine
+                if (buffer != null && buffer.Length > 0)
+                    oscilloscope.UpdateBuffer(buffer);
+            };
+            oscilloscopeTimer.Start();
             engine.Start();
+            float[] audioData = new float[630];
+            Random random = new();
+            for (int i = 0; i < audioData.Length; i++)
+            {
+                audioData[i] = random.Next(-100,100)/100f; // Пример синусоиды
+            }
         }
 
         private void label2_Click(object sender, EventArgs e)
