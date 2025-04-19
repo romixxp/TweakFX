@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using NAudio.Wave;
 using System.Windows.Forms;
 using TweakFX; // Где лежит AsyncVirtualMicrophoneSender
@@ -26,23 +26,29 @@ namespace TweakFX.core
         public void AddEffect(IAudioEffect effect)
         {
             _effectChain.AddEffect(effect);
-        }/*
+        }
+        Clipper2 effect = new core.effects.distortion.Clipper2();
+
         public void UpdDist(float newDistortionAmount)
         {
-             = newDistortionAmount;
+            effect.UpdateDistortionAmount(newDistortionAmount);
         }
 
         // Метод для обновления тона
         public void UpdTone(float newTone)
         {
-            _tone = newTone;
+            effect.UpdateTone(newTone);
+        }
+        public void UpdThres(float newThres)
+        {
+            effect.UpdateThreshold(newThres);
         }
 
         // Метод для обновления громкости
         public void UpdVol(float newVolume)
         {
-            _volume = newVolume;
-        }*/
+            effect.UpdateVolume(newVolume);
+        }
 
         public void Start()
         {
@@ -50,7 +56,8 @@ namespace TweakFX.core
 
             _asioOutput.Init();
 
-            //_effectChain.AddEffect(new Clipper(threshold: 0.5f));
+            //_effectChain.AddEffect(new core.effects.delay_reeverb.Delay(500));
+            _effectChain.AddEffect(effect);
             _asioInput.AudioAvailable += (s, buffer) =>
             {
                 //_effectChain.Process(buffer, 0, buffer.Length); // Применяем все эффекты
