@@ -1,4 +1,4 @@
-﻿using NAudio.Wave;
+using NAudio.Wave;
 using TweakFX.core;
 using TweakFX.core.effects.distortion;
 using TweakFX.ui;
@@ -61,18 +61,18 @@ namespace dfsa.ui
             knobVol.Value = 0.5f;
             knobTone.Value = 0.5f;
             knobDist.Value = 0.5f;
-            _distortionEffect = new Clipper(distortionAmount: knobDist.Value, tone: knobTone.Value, volume: knobVol.Value);
+            //_distortionEffect = new Clipper(distortionAmount: knobDist.Value, tone: knobTone.Value, volume: knobVol.Value);
             knobVol.ValueChanged += (s, e) =>
             {
-                _distortionEffect.UpdateVolume(knobVol.Value);
+                engine.UpdVol(knobVol.Value*10);
             };
             knobTone.ValueChanged += (s, e) =>
             {
-                _distortionEffect.UpdateTone(knobTone.Value);
+                engine.UpdThres(knobTone.Value);
             };
             knobDist.ValueChanged += (s, e) =>
             {
-                _distortionEffect.UpdateDistortionAmount(knobDist.Value);
+                engine.UpdDist(knobDist.Value*10);
             };
             // Можно добавить эффекты
             // engine.AddEffect(new MyReverb());
