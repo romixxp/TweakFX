@@ -1,7 +1,10 @@
+using System.Windows.Forms;
+using System;
 using NAudio.Wave;
 using TweakFX.core;
 using TweakFX.core.effects.distortion;
 using TweakFX.ui;
+using TweakFX.ui.controls;
 
 namespace dfsa.ui
 {
@@ -77,8 +80,14 @@ namespace dfsa.ui
             // Можно добавить эффекты
             // engine.AddEffect(new MyReverb());
             // engine.AddEffect(new MyCompressor());
-
             engine.Start();
+            float[] audioData = new float[630];
+            Random random = new();
+            for (int i = 0; i < audioData.Length; i++)
+            {
+                audioData[i] = random.Next(-100,100)/100f; // Пример синусоиды
+            }
+            oscilloscopeControl2.Invalidate(); // Перерисовываем осциллограф
         }
 
         private void label2_Click(object sender, EventArgs e)

@@ -4,6 +4,8 @@ using System.Windows.Forms;
 using TweakFX; // Где лежит AsyncVirtualMicrophoneSender
 using System.Threading;
 using TweakFX.core.effects.distortion;
+using TweakFX.ui.controls;
+using dfsa.ui;
 
 namespace TweakFX.core
 {
@@ -55,16 +57,16 @@ namespace TweakFX.core
             // Добавляем эффект дисторшн
 
             _asioOutput.Init();
-
+            DistortionNeonPedal form = new();
             //_effectChain.AddEffect(new core.effects.delay_reeverb.Delay(500));
             _effectChain.AddEffect(effect);
+            AsioConfig asiocfg = new();
             _asioInput.AudioAvailable += (s, buffer) =>
             {
                 //_effectChain.Process(buffer, 0, buffer.Length); // Применяем все эффекты
                 _effectChain.Process(buffer, 0, buffer.Length);
                 var stereoBuffer = MonoToStereo(buffer);
                 _asioOutput.Write(stereoBuffer);
-
                 var byteBuffer = FloatToPcm16Bytes(stereoBuffer);
                 byte[] myPcmBuffer = byteBuffer; // должен быть PCM-совместим с WaveFormat
                 sender.SendBuffer(myPcmBuffer);
