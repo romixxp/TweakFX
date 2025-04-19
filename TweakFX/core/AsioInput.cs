@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -7,11 +7,10 @@ using System.Threading.Tasks;
 namespace TweakFX.core
 {
     using NAudio.Wave;
-    using NAudio.Wave.Asio;
     using System;
 
     public class AsioInput
-    {
+    { 
         private readonly AsioConfig _config;
         private AsioOut _asioOut;
         public event EventHandler<float[]> AudioAvailable;
