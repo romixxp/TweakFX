@@ -1,4 +1,4 @@
-﻿namespace dfsa.ui
+namespace dfsa.ui
 {
     partial class DistortionNeonPedal
     {
@@ -33,9 +33,9 @@
             label1 = new Label();
             label2 = new Label();
             label3 = new Label();
-            knobDist = new dfsa.ui.controls.DistortionKnob();
-            knobTone = new dfsa.ui.controls.DistortionKnob();
-            knobVol = new dfsa.ui.controls.DistortionKnob();
+            knobDist = new controls.DistortionKnob();
+            knobTone = new controls.DistortionKnob();
+            knobVol = new controls.DistortionKnob();
             label4 = new Label();
             contextMenuStrip1 = new ContextMenuStrip(components);
             presetToolStripMenuItem = new ToolStripMenuItem();
@@ -52,7 +52,7 @@
             panel1.Dock = DockStyle.Top;
             panel1.Location = new Point(0, 0);
             panel1.Name = "panel1";
-            panel1.Size = new Size(584, 30);
+            panel1.Size = new Size(618, 30);
             panel1.TabIndex = 0;
             // 
             // label1
@@ -62,7 +62,7 @@
             label1.ForeColor = Color.White;
             label1.Location = new Point(31, 120);
             label1.Name = "label1";
-            label1.Size = new Size(95, 25);
+            label1.Size = new Size(143, 40);
             label1.TabIndex = 2;
             label1.Text = "Distortion";
             // 
@@ -73,19 +73,19 @@
             label2.ForeColor = Color.White;
             label2.Location = new Point(148, 120);
             label2.Name = "label2";
-            label2.Size = new Size(52, 25);
+            label2.Size = new Size(142, 40);
             label2.TabIndex = 4;
-            label2.Text = "Tone";
+            label2.Text = "Threshold";
             label2.Click += label2_Click;
             // 
             // label3
             // 
             label3.AutoSize = true;
-            label3.Font = new Font("Wasted", 36F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            label3.Font = new Font("Microsoft Sans Serif", 36F, FontStyle.Bold, GraphicsUnit.Point, 0);
             label3.ForeColor = Color.White;
             label3.Location = new Point(240, 78);
             label3.Name = "label3";
-            label3.Size = new Size(227, 58);
+            label3.Size = new Size(366, 82);
             label3.TabIndex = 5;
             label3.Text = "Tweak FX";
             // 
@@ -124,55 +124,55 @@
             label4.ForeColor = Color.White;
             label4.Location = new Point(491, 120);
             label4.Name = "label4";
-            label4.Size = new Size(76, 25);
+            label4.Size = new Size(113, 40);
             label4.TabIndex = 9;
             label4.Text = "Volume";
             // 
             // contextMenuStrip1
             // 
+            contextMenuStrip1.ImageScalingSize = new Size(24, 24);
             contextMenuStrip1.Items.AddRange(new ToolStripItem[] { presetToolStripMenuItem, pereferencesToolStripMenuItem, exitToolStripMenuItem });
             contextMenuStrip1.Name = "contextMenuStrip1";
-            contextMenuStrip1.Size = new Size(142, 70);
+            contextMenuStrip1.Size = new Size(183, 100);
             // 
             // presetToolStripMenuItem
             // 
             presetToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { saveToolStripMenuItem, loadToolStripMenuItem });
             presetToolStripMenuItem.Name = "presetToolStripMenuItem";
-            presetToolStripMenuItem.Size = new Size(141, 22);
+            presetToolStripMenuItem.Size = new Size(182, 32);
             presetToolStripMenuItem.Text = "File";
             // 
             // saveToolStripMenuItem
             // 
             saveToolStripMenuItem.Name = "saveToolStripMenuItem";
-            saveToolStripMenuItem.Size = new Size(100, 22);
+            saveToolStripMenuItem.Size = new Size(153, 34);
             saveToolStripMenuItem.Text = "Save";
             // 
             // loadToolStripMenuItem
             // 
             loadToolStripMenuItem.Name = "loadToolStripMenuItem";
-            loadToolStripMenuItem.Size = new Size(100, 22);
+            loadToolStripMenuItem.Size = new Size(153, 34);
             loadToolStripMenuItem.Text = "Load";
             // 
             // pereferencesToolStripMenuItem
             // 
             pereferencesToolStripMenuItem.Name = "pereferencesToolStripMenuItem";
-            pereferencesToolStripMenuItem.Size = new Size(141, 22);
+            pereferencesToolStripMenuItem.Size = new Size(182, 32);
             pereferencesToolStripMenuItem.Text = "Pereferences";
             pereferencesToolStripMenuItem.Click += preferencesToolStripMenuItem_Click;
             // 
             // exitToolStripMenuItem
             // 
             exitToolStripMenuItem.Name = "exitToolStripMenuItem";
-            exitToolStripMenuItem.Size = new Size(141, 22);
+            exitToolStripMenuItem.Size = new Size(182, 32);
             exitToolStripMenuItem.Text = "Exit";
             exitToolStripMenuItem.Click += exitToolStripMenuItem_Click;
             // 
             // DistortionNeonPedal
             // 
-            //AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.None;
             BackColor = Color.FromArgb(21, 23, 31);
-            ClientSize = new Size(584, 170);
+            ClientSize = new Size(618, 170);
             ContextMenuStrip = contextMenuStrip1;
             Controls.Add(label4);
             Controls.Add(label2);
