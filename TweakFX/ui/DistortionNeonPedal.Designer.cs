@@ -176,7 +176,7 @@ namespace dfsa.ui
             oscilloscope.BackColor = Color.Gray;
             oscilloscope.Location = new Point(12, 173);
             oscilloscope.Name = "oscilloscope";
-            oscilloscope.Size = new Size(232, 94);
+            oscilloscope.Size = new Size(232, 113);
             oscilloscope.TabIndex = 10;
             oscilloscope.Text = "oscilloscope1";
             // 

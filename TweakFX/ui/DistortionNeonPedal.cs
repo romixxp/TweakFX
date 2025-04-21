@@ -18,8 +18,6 @@ namespace dfsa.ui
         private Clipper _distortionEffect;
         AudioEngine engine;
         private System.Windows.Forms.Timer oscilloscopeTimer;
-        private System.Windows.Forms.Timer MagnitudeSpectrogramTimer;
-        private SpectrogramControl spectrogram;
         public DistortionNeonPedal()
         {
             InitializeComponent();
@@ -30,12 +28,7 @@ namespace dfsa.ui
             // topPanel.Dock = DockStyle.Top; // Убедитесь, что панель докируется к верху формы
             panel1.Cursor = Cursors.Default; // Установим курсор для перетаскивания
 
-            spectrogram = new SpectrogramControl
-            {
-                Dock = DockStyle.Fill
-            };
-            Controls.Add(spectrogram);
-
+          
         }
 
         private void topPanel_MouseDown(object sender, MouseEventArgs e)
@@ -97,10 +90,7 @@ namespace dfsa.ui
             {
                 Interval = 20
             };          
-            MagnitudeSpectrogramTimer = new System.Windows.Forms.Timer
-            {
-                Interval = 5
-            };
+
 
             oscilloscopeTimer.Tick += (s, e) =>
             {
@@ -110,16 +100,9 @@ namespace dfsa.ui
                     oscilloscope.UpdateBuffer(buffer);
                 }
             };
-            MagnitudeSpectrogramTimer.Tick += (s, e) =>
-            {
-                float[] buffer = engine?.GetLatestBuffer(); // ты должен реализовать метод ниже в AudioEngine
-                if (buffer != null && buffer.Length > 0)
-                {
-                    spectrogram.AddFrame(buffer);
-                }
-            };
+
             oscilloscopeTimer.Start();
-            MagnitudeSpectrogramTimer.Start();
+
             engine.Start();
             float[] audioData = new float[630];
             Random random = new();
