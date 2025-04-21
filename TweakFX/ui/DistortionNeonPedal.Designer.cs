@@ -55,7 +55,7 @@ namespace dfsa.ui
             panel1.Dock = DockStyle.Top;
             panel1.Location = new Point(0, 0);
             panel1.Name = "panel1";
-            panel1.Size = new Size(1392, 30);
+            panel1.Size = new Size(602, 30);
             panel1.TabIndex = 0;
             // 
             // label1
@@ -176,7 +176,7 @@ namespace dfsa.ui
             oscilloscope.BackColor = Color.Gray;
             oscilloscope.Location = new Point(12, 173);
             oscilloscope.Name = "oscilloscope";
-            oscilloscope.Size = new Size(232, 94);
+            oscilloscope.Size = new Size(232, 113);
             oscilloscope.TabIndex = 10;
             oscilloscope.Text = "oscilloscope1";
             // 
@@ -184,7 +184,7 @@ namespace dfsa.ui
             // 
             AutoScaleMode = AutoScaleMode.None;
             BackColor = Color.FromArgb(21, 23, 31);
-            ClientSize = new Size(1392, 461);
+            ClientSize = new Size(602, 301);
             ContextMenuStrip = contextMenuStrip1;
             Controls.Add(oscilloscope);
             Controls.Add(label4);
