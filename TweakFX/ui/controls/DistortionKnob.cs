@@ -167,6 +167,7 @@ namespace dfsa.ui.controls
 
             return deltaAngle < 1.5f; // Пропуск для 0 дБ
         }
+        
         private void DrawExternalMarker(Graphics g, Rectangle rect, float angle, float hue, bool active)
         {
             PointF start = GetPointOnCircle(rect, angle, 1.25f);
@@ -176,7 +177,7 @@ namespace dfsa.ui.controls
 
             if (active)
             {
-                penColor = ColorFromHSV(hue, 1f, 1f); // Цвет по логарифму
+                penColor = ColorFromHSV(hue+80f, 1f, 1f); // Цвет по логарифму
             }
             else
             {
@@ -188,7 +189,6 @@ namespace dfsa.ui.controls
                 g.DrawLine(pen, start, end);
             }
         }
-
 
         public static Color ColorFromHSV(double hue, double saturation, double value)
         {

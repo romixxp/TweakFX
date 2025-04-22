@@ -70,8 +70,12 @@ namespace dfsa.ui
             engine.UpdWetMix(knobDelayMix.Value);
 
             //Other
-            knobOut.Value = 1/2f;
-            engine.SetInVol(knobOut.Value);
+            knobOut.Value = 1 / 2f;
+            knobIn.Value = 1 / 2f;
+            knobAVMix.Value = 1f;
+            engine.SetOutVol(knobOut.Value);
+            engine.SetInVol(knobIn.Value);
+            engine.SetMix(knobAVMix.Value);
         }
 
         private void DistortionNeonPedal_Load(object sender, EventArgs e)
@@ -93,7 +97,7 @@ namespace dfsa.ui
             #region ValueChanged
 
             #region Distortion
-          
+
             knobThres.ValueChanged += (s, e) => engine.UpdThres(knobThres.Value * 5);
             knobDist.ValueChanged += (s, e) => engine.UpdDist(knobDist.Value * 10);
 
@@ -102,18 +106,19 @@ namespace dfsa.ui
 
             #region Delay
 
-            knobDelay.ValueChanged += (s, e) => engine.UpdDelayTime((int)(knobDelay.Value*1000));
+            knobDelay.ValueChanged += (s, e) => engine.UpdDelayTime((int)(knobDelay.Value * 1000));
             knobFeedback.ValueChanged += (s, e) => engine.UpdFeedback(knobFeedback.Value);
             knobDelayMix.ValueChanged += (s, e) => engine.UpdWetMix(knobDelayMix.Value);
 
             #endregion
 
             knobIn.ValueChanged += (s, e) => engine.SetInVol(knobIn.Value);
-            knobOut.ValueChanged += (s, e) => 
-            { 
+            knobOut.ValueChanged += (s, e) =>
+            {
                 engine.SetOutVol(knobOut.Value);
-                engine.UpdWetMix(knobDelayMix.Value*knobOut.Value);
+                engine.UpdWetMix(knobDelayMix.Value * knobOut.Value);
             };
+            knobAVMix.ValueChanged += (s, e) => engine.SetMix(knobAVMix.Value);
 
 
             #endregion
@@ -123,7 +128,7 @@ namespace dfsa.ui
             oscilloscopeTimer = new System.Windows.Forms.Timer
             {
                 Interval = 20
-            };          
+            };
 
 
             oscilloscopeTimer.Tick += (s, e) =>
@@ -148,10 +153,7 @@ namespace dfsa.ui
 
         }
 
-        private void label2_Click(object sender, EventArgs e)
-        {
 
-        }
 
         private void preferencesToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -174,20 +176,14 @@ namespace dfsa.ui
             Application.Exit();
         }
 
-        private void knobVol_Click(object sender, EventArgs e)
-        {
 
-        }
 
         private void DistortionNeonPedal_FormClosing(object sender, FormClosingEventArgs e)
         {
             engine?.Stop();
         }
 
-        private void panel2_Paint(object sender, PaintEventArgs e)
-        {
 
-        }
         private void GenerateTestData()
         {
             /*          float[] magnitudes = new float[512];
@@ -197,9 +193,8 @@ namespace dfsa.ui
                           magnitudes[i] = (float)(0.5 * (Math.Sin(i * 0.05 + t * 5) + 1));
                       }  */
 
-    
-        }
 
+        }
 
     }
 }

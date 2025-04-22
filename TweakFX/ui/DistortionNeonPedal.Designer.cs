@@ -59,6 +59,8 @@ namespace dfsa.ui
             knobOut = new dfsa.ui.controls.DistortionKnob();
             label10 = new Label();
             label11 = new Label();
+            knobAVMix = new dfsa.ui.controls.DistortionKnob();
+            label12 = new Label();
             contextMenuStrip1.SuspendLayout();
             panel2.SuspendLayout();
             panel3.SuspendLayout();
@@ -70,7 +72,7 @@ namespace dfsa.ui
             panel1.Dock = DockStyle.Top;
             panel1.Location = new Point(0, 0);
             panel1.Name = "panel1";
-            panel1.Size = new Size(873, 30);
+            panel1.Size = new Size(982, 30);
             panel1.TabIndex = 0;
             // 
             // label1
@@ -94,7 +96,6 @@ namespace dfsa.ui
             label2.Size = new Size(95, 25);
             label2.TabIndex = 4;
             label2.Text = "Distortion";
-            label2.Click += label2_Click;
             // 
             // label3
             // 
@@ -179,9 +180,9 @@ namespace dfsa.ui
             // oscilloscope
             // 
             oscilloscope.BackColor = Color.Gray;
-            oscilloscope.Location = new Point(574, 97);
+            oscilloscope.Location = new Point(584, 97);
             oscilloscope.Name = "oscilloscope";
-            oscilloscope.Size = new Size(285, 109);
+            oscilloscope.Size = new Size(385, 109);
             oscilloscope.TabIndex = 10;
             oscilloscope.Text = "oscilloscope1";
             // 
@@ -308,7 +309,7 @@ namespace dfsa.ui
             // 
             // knobOut
             // 
-            knobOut.Location = new Point(738, 215);
+            knobOut.Location = new Point(845, 215);
             knobOut.Name = "knobOut";
             knobOut.Size = new Size(110, 110);
             knobOut.TabIndex = 16;
@@ -320,7 +321,7 @@ namespace dfsa.ui
             label10.AutoSize = true;
             label10.Font = new Font("Segoe UI", 14.25F, FontStyle.Regular, GraphicsUnit.Point, 204);
             label10.ForeColor = Color.White;
-            label10.Location = new Point(719, 328);
+            label10.Location = new Point(829, 328);
             label10.Name = "label10";
             label10.Size = new Size(140, 25);
             label10.TabIndex = 15;
@@ -331,18 +332,40 @@ namespace dfsa.ui
             label11.AutoSize = true;
             label11.Font = new Font("Wasted", 36F, FontStyle.Bold);
             label11.ForeColor = Color.White;
-            label11.Location = new Point(646, 36);
+            label11.Location = new Point(743, 36);
             label11.Name = "label11";
             label11.Size = new Size(227, 58);
             label11.TabIndex = 17;
             label11.Text = "Tweak FX";
             // 
+            // knobAVMix
+            // 
+            knobAVMix.Location = new Point(719, 215);
+            knobAVMix.Name = "knobAVMix";
+            knobAVMix.Size = new Size(110, 110);
+            knobAVMix.TabIndex = 19;
+            knobAVMix.Text = "distortionKnob5";
+            knobAVMix.Value = 1F;
+            // 
+            // label12
+            // 
+            label12.AutoSize = true;
+            label12.Font = new Font("Segoe UI", 14.25F, FontStyle.Regular, GraphicsUnit.Point, 204);
+            label12.ForeColor = Color.White;
+            label12.Location = new Point(726, 328);
+            label12.Name = "label12";
+            label12.Size = new Size(95, 25);
+            label12.TabIndex = 18;
+            label12.Text = "Effect Mix";
+            // 
             // DistortionNeonPedal
             // 
             AutoScaleMode = AutoScaleMode.None;
             BackColor = Color.FromArgb(21, 23, 31);
-            ClientSize = new Size(873, 367);
+            ClientSize = new Size(982, 367);
             ContextMenuStrip = contextMenuStrip1;
+            Controls.Add(knobAVMix);
+            Controls.Add(label12);
             Controls.Add(label11);
             Controls.Add(knobOut);
             Controls.Add(label10);
@@ -398,5 +421,7 @@ namespace dfsa.ui
         private controls.DistortionKnob knobOut;
         private Label label10;
         private Label label11;
+        private controls.DistortionKnob knobAVMix;
+        private Label label12;
     }
 }
