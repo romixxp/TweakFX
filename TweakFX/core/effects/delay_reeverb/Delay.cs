@@ -29,6 +29,7 @@ namespace TweakFX.core.effects.delay_reeverb
         // Метод для обновления параметров эффекта
         public void UpdateDelayTime(int delayTimeInMs, int sampleRate = 44100)
         {
+            //MessageBox.Show(delayTimeInMs.ToString());
             _delayTimeInSamples = Math.Max(1, (int)(delayTimeInMs * (sampleRate / 1000.0f)));  // Защита: минимум 1 сэмпл
             _delayBuffer = new float[_delayTimeInSamples];
             _writeIndex = 0;
@@ -58,7 +59,6 @@ namespace TweakFX.core.effects.delay_reeverb
 
                 // Получаем задержанный сэмпл из буфера
                 float delayedSample = _delayBuffer[_writeIndex];
-
                 // Записываем текущий сэмпл в буфер
                 _delayBuffer[_writeIndex] = currentSample + delayedSample * _feedback;
 

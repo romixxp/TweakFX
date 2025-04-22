@@ -10,11 +10,18 @@ using System.Windows.Forms;
 
 namespace dfsa
 {
-    public partial class DearVRproTB: UserControl
+    public partial class DearVRproTB : UserControl
     {
         public DearVRproTB()
         {
             InitializeComponent();
+
+
+        }
+
+        private void textBox1_TextChanged(object sender, EventArgs e)
+        {
+
         }
     }
 }

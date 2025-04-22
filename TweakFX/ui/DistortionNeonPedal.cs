@@ -59,19 +59,19 @@ namespace dfsa.ui
             //Distortion
             knobThres.Value = 0.7f;
             knobDist.Value = 0.2f;
-            engine.UpdThres(knobThres.Value);
+            engine.UpdThres(knobThres.Value * 5);
             engine.UpdDist(knobDist.Value * 10);
 
             knobDelay.Value = 0.5f;
             knobFeedback.Value = 0.2f;
             knobDelayMix.Value = 0.5f;
-            engine.UpdDelayTime((int)knobDelay.Value * 1000);
+            engine.UpdDelayTime((int)(knobDelay.Value * 1000));
             engine.UpdFeedback(knobFeedback.Value);
             engine.UpdWetMix(knobDelayMix.Value);
 
             //Other
-            knobVol.Value = 0.5f;
-            engine.UpdVol(knobVol.Value * 10);
+            knobOut.Value = 1/2f;
+            engine.SetInVol(knobOut.Value);
         }
 
         private void DistortionNeonPedal_Load(object sender, EventArgs e)
@@ -94,38 +94,27 @@ namespace dfsa.ui
 
             #region Distortion
           
-            knobThres.ValueChanged += (s, e) =>
-            {
-                engine.UpdThres(knobThres.Value);
-            };
-            knobDist.ValueChanged += (s, e) =>
-            {
-                engine.UpdDist(knobDist.Value * 10);
-            };
+            knobThres.ValueChanged += (s, e) => engine.UpdThres(knobThres.Value * 5);
+            knobDist.ValueChanged += (s, e) => engine.UpdDist(knobDist.Value * 10);
+
 
             #endregion
 
             #region Delay
 
-            knobDelay.ValueChanged += (s, e) =>
-            {
-                engine.UpdDelayTime((int)knobDelay.Value*1000);
-            };
-            knobFeedback.ValueChanged += (s, e) =>
-            {
-                engine.UpdFeedback(knobFeedback.Value);
-            };
-            knobDelayMix.ValueChanged += (s, e) =>
-            {
-                engine.UpdWetMix(knobDelayMix.Value);
-            };
+            knobDelay.ValueChanged += (s, e) => engine.UpdDelayTime((int)(knobDelay.Value*1000));
+            knobFeedback.ValueChanged += (s, e) => engine.UpdFeedback(knobFeedback.Value);
+            knobDelayMix.ValueChanged += (s, e) => engine.UpdWetMix(knobDelayMix.Value);
 
             #endregion
 
-            knobVol.ValueChanged += (s, e) =>
-            {
-                engine.UpdVol(knobVol.Value * 10);
+            knobIn.ValueChanged += (s, e) => engine.SetInVol(knobIn.Value);
+            knobOut.ValueChanged += (s, e) => 
+            { 
+                engine.SetOutVol(knobOut.Value);
+                engine.UpdWetMix(knobDelayMix.Value*knobOut.Value);
             };
+
 
             #endregion
             // Можно добавить эффекты
@@ -145,7 +134,7 @@ namespace dfsa.ui
                     oscilloscope.UpdateBuffer(buffer);
                 }
             };
-            InitDefPreset(engine);
+
             oscilloscopeTimer.Start();
 
             engine.Start();
@@ -155,6 +144,8 @@ namespace dfsa.ui
             {
                 audioData[i] = random.Next(-100, 100) / 100f; // Пример синусоиды
             }
+            InitDefPreset(engine);
+
         }
 
         private void label2_Click(object sender, EventArgs e)

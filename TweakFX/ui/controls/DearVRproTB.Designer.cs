@@ -54,6 +54,7 @@
             textBox1.Size = new Size(67, 26);
             textBox1.TabIndex = 2;
             textBox1.Text = "-96.0";
+            textBox1.TextChanged += textBox1_TextChanged;
             // 
             // DearVRproTB
             // 

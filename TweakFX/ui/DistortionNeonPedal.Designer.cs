@@ -37,7 +37,6 @@ namespace dfsa.ui
             label3 = new Label();
             knobDist = new dfsa.ui.controls.DistortionKnob();
             knobThres = new dfsa.ui.controls.DistortionKnob();
-            knobVol = new dfsa.ui.controls.DistortionKnob();
             label4 = new Label();
             contextMenuStrip1 = new ContextMenuStrip(components);
             presetToolStripMenuItem = new ToolStripMenuItem();
@@ -56,6 +55,10 @@ namespace dfsa.ui
             knobFeedback = new dfsa.ui.controls.DistortionKnob();
             knobDelay = new dfsa.ui.controls.DistortionKnob();
             knobDelayMix = new dfsa.ui.controls.DistortionKnob();
+            knobIn = new dfsa.ui.controls.DistortionKnob();
+            knobOut = new dfsa.ui.controls.DistortionKnob();
+            label10 = new Label();
+            label11 = new Label();
             contextMenuStrip1.SuspendLayout();
             panel2.SuspendLayout();
             panel3.SuspendLayout();
@@ -67,7 +70,7 @@ namespace dfsa.ui
             panel1.Dock = DockStyle.Top;
             panel1.Location = new Point(0, 0);
             panel1.Name = "panel1";
-            panel1.Size = new Size(1291, 30);
+            panel1.Size = new Size(873, 30);
             panel1.TabIndex = 0;
             // 
             // label1
@@ -100,9 +103,9 @@ namespace dfsa.ui
             label3.ForeColor = Color.White;
             label3.Location = new Point(12, 36);
             label3.Name = "label3";
-            label3.Size = new Size(1264, 58);
+            label3.Size = new Size(126, 58);
             label3.TabIndex = 5;
-            label3.Text = "Leaf                                                    Tweak FX";
+            label3.Text = "Leaf";
             // 
             // knobDist
             // 
@@ -122,26 +125,16 @@ namespace dfsa.ui
             knobThres.Text = "distortionKnob4";
             knobThres.Value = 0.1F;
             // 
-            // knobVol
-            // 
-            knobVol.Location = new Point(269, 425);
-            knobVol.Name = "knobVol";
-            knobVol.Size = new Size(80, 80);
-            knobVol.TabIndex = 8;
-            knobVol.Text = "distortionKnob5";
-            knobVol.Value = 0.5F;
-            knobVol.Click += knobVol_Click;
-            // 
             // label4
             // 
             label4.AutoSize = true;
             label4.Font = new Font("Segoe UI", 14.25F, FontStyle.Regular, GraphicsUnit.Point, 204);
             label4.ForeColor = Color.White;
-            label4.Location = new Point(272, 489);
+            label4.Location = new Point(584, 328);
             label4.Name = "label4";
-            label4.Size = new Size(76, 25);
+            label4.Size = new Size(125, 25);
             label4.TabIndex = 9;
-            label4.Text = "Volume";
+            label4.Text = "Input Volume";
             // 
             // contextMenuStrip1
             // 
@@ -186,9 +179,9 @@ namespace dfsa.ui
             // oscilloscope
             // 
             oscilloscope.BackColor = Color.Gray;
-            oscilloscope.Location = new Point(31, 392);
+            oscilloscope.Location = new Point(574, 97);
             oscilloscope.Name = "oscilloscope";
-            oscilloscope.Size = new Size(232, 113);
+            oscilloscope.Size = new Size(285, 109);
             oscilloscope.TabIndex = 10;
             oscilloscope.Text = "oscilloscope1";
             // 
@@ -260,7 +253,7 @@ namespace dfsa.ui
             label7.AutoSize = true;
             label7.Font = new Font("Segoe UI", 14.25F, FontStyle.Regular, GraphicsUnit.Point, 204);
             label7.ForeColor = Color.White;
-            label7.Location = new Point(33, 178);
+            label7.Location = new Point(35, 178);
             label7.Name = "label7";
             label7.Size = new Size(59, 25);
             label7.TabIndex = 4;
@@ -304,17 +297,60 @@ namespace dfsa.ui
             knobDelayMix.Text = "distortionKnob5";
             knobDelayMix.Value = 0.5F;
             // 
+            // knobIn
+            // 
+            knobIn.Location = new Point(593, 215);
+            knobIn.Name = "knobIn";
+            knobIn.Size = new Size(110, 110);
+            knobIn.TabIndex = 14;
+            knobIn.Text = "distortionKnob5";
+            knobIn.Value = 0.5F;
+            // 
+            // knobOut
+            // 
+            knobOut.Location = new Point(738, 215);
+            knobOut.Name = "knobOut";
+            knobOut.Size = new Size(110, 110);
+            knobOut.TabIndex = 16;
+            knobOut.Text = "distortionKnob5";
+            knobOut.Value = 0.5F;
+            // 
+            // label10
+            // 
+            label10.AutoSize = true;
+            label10.Font = new Font("Segoe UI", 14.25F, FontStyle.Regular, GraphicsUnit.Point, 204);
+            label10.ForeColor = Color.White;
+            label10.Location = new Point(719, 328);
+            label10.Name = "label10";
+            label10.Size = new Size(140, 25);
+            label10.TabIndex = 15;
+            label10.Text = "Output Volume";
+            // 
+            // label11
+            // 
+            label11.AutoSize = true;
+            label11.Font = new Font("Wasted", 36F, FontStyle.Bold);
+            label11.ForeColor = Color.White;
+            label11.Location = new Point(646, 36);
+            label11.Name = "label11";
+            label11.Size = new Size(227, 58);
+            label11.TabIndex = 17;
+            label11.Text = "Tweak FX";
+            // 
             // DistortionNeonPedal
             // 
             AutoScaleMode = AutoScaleMode.None;
             BackColor = Color.FromArgb(21, 23, 31);
-            ClientSize = new Size(1291, 541);
+            ClientSize = new Size(873, 367);
             ContextMenuStrip = contextMenuStrip1;
+            Controls.Add(label11);
+            Controls.Add(knobOut);
+            Controls.Add(label10);
+            Controls.Add(knobIn);
             Controls.Add(panel3);
             Controls.Add(panel2);
             Controls.Add(oscilloscope);
             Controls.Add(label4);
-            Controls.Add(knobVol);
             Controls.Add(label3);
             Controls.Add(panel1);
             FormBorderStyle = FormBorderStyle.None;
@@ -341,7 +377,6 @@ namespace dfsa.ui
         private Label label3;
         private controls.DistortionKnob knobDist;
         private controls.DistortionKnob knobThres;
-        private controls.DistortionKnob knobVol;
         private Label label4;
         private ContextMenuStrip contextMenuStrip1;
         private ToolStripMenuItem pereferencesToolStripMenuItem;
@@ -359,5 +394,9 @@ namespace dfsa.ui
         private controls.DistortionKnob knobFeedback;
         private controls.DistortionKnob knobDelay;
         private Label label9;
+        private controls.DistortionKnob knobIn;
+        private controls.DistortionKnob knobOut;
+        private Label label10;
+        private Label label11;
     }
 }
