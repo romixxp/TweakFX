@@ -41,6 +41,9 @@ namespace dfsa.ui.controls
                 if (Math.Abs(this.value - value) > 0.0001f) // можно подстроить точность
                 {
                     this.value = value;
+                    // Синхронизировать угол
+                    angle = MinAngle + this.value * (MaxAngle - MinAngle);
+
                     OnValueChanged(EventArgs.Empty);
                     Invalidate();
                 }
@@ -73,8 +76,8 @@ namespace dfsa.ui.controls
                     //                    brush.CenterColor = Color.Magenta;
                     //                    brush.SurroundColors = new Color[] { Color.FromArgb(60, 0, 60) };
                     ColorBlend colorBlend = new ColorBlend();
-                    colorBlend.Colors = [Color.FromArgb(130, 0, 100), Color.FromArgb(255, 0, 0), Color.FromArgb(46, 0, 17)];
-                    colorBlend.Positions = [0f, 0.4f, 1f];
+                    colorBlend.Colors = [Color.FromArgb(0, 238, 255), Color.FromArgb(0, 255, 51), Color.FromArgb(0, 99, 98)];
+                    colorBlend.Positions = [0f, 0.6f, 1f];
                     fillBrush.InterpolationColors = colorBlend;
                     g.FillEllipse(fillBrush, shadowCircle);
                 }

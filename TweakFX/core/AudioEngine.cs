@@ -6,6 +6,7 @@ using System.Threading;
 using TweakFX.core.effects.distortion;
 using TweakFX.ui.controls;
 using dfsa.ui;
+using TweakFX.core.effects.delay_reeverb;
 
 namespace TweakFX.core
 {
@@ -30,34 +31,58 @@ namespace TweakFX.core
         {
             _effectChain.AddEffect(effect);
         }
-        Clipper2 effect = new core.effects.distortion.Clipper2();
+        Clipper2 clipper = new core.effects.distortion.Clipper2();
+        Delay delay = new core.effects.delay_reeverb.Delay();
+        #region Updaters
+        
+        #region Distortion
 
         public void UpdDist(float newDistortionAmount)
         {
-            effect.UpdateDistortionAmount(newDistortionAmount);
+            clipper.UpdateDistortionAmount(newDistortionAmount);
         }
-
-        // Метод для обновления тона
         public void UpdTone(float newTone)
         {
-            effect.UpdateTone(newTone);
+            clipper.UpdateTone(newTone);
         }
         public void UpdThres(float newThres)
         {
-            effect.UpdateThreshold(newThres);
+            clipper.UpdateThreshold(newThres);
         }
-
-        // Метод для обновления громкости
         public void UpdVol(float newVolume)
         {
-            effect.UpdateVolume(newVolume);
+            clipper.UpdateVolume(newVolume);
         }
 
+        #endregion
+
+        #region Delay
+
+        public void UpdDelayTime(int delayTimeInMs)
+        {
+            delay.UpdateDelayTime(delayTimeInMs);
+        }
+
+        public void UpdFeedback(float feedback)
+        {
+            delay.UpdateFeedback(feedback);
+        }
+
+        public void UpdWetMix(float wetMix)
+        {
+            delay.UpdateWetMix(wetMix);
+            delay.UpdateDryMix(1f-wetMix);
+        }
+
+        #endregion
+
+        #endregion
         public void Start()
         {
             _asioOutput.Init();
             DistortionNeonPedal form = new();
-            _effectChain.AddEffect(effect);
+            //_effectChain.AddEffect(clipper);
+            _effectChain.AddEffect(delay);
             _asioInput.AudioAvailable += (s, buffer) =>
             {
                 _effectChain.Process(buffer, 0, buffer.Length);
