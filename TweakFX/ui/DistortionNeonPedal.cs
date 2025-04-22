@@ -196,5 +196,14 @@ namespace dfsa.ui
 
         }
 
+        private void pnlClose_Paint(object sender, PaintEventArgs e)
+        {
+
+        }
+
+        private void pnlClose_Click(object sender, EventArgs e)
+        {
+            Application.Exit();
+        }
     }
 }
