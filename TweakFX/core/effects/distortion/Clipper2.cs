@@ -25,7 +25,10 @@ namespace TweakFX.core.effects.distortion
         // Метод для обновления дисторшн
         public void UpdateDistortionAmount(float newDistortionAmount)
         {
-            _distortionAmount = newDistortionAmount;
+            if (newDistortionAmount > 0.5f)
+                _distortionAmount = newDistortionAmount;
+            else
+                _distortionAmount = 0.5f;
         }
 
         // Метод для обновления тона

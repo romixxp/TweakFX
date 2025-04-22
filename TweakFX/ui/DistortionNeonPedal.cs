@@ -28,7 +28,7 @@ namespace dfsa.ui
             // topPanel.Dock = DockStyle.Top; // Убедитесь, что панель докируется к верху формы
             panel1.Cursor = Cursors.Default; // Установим курсор для перетаскивания
 
-          
+
         }
 
         private void topPanel_MouseDown(object sender, MouseEventArgs e)
@@ -53,6 +53,27 @@ namespace dfsa.ui
                 this.Location = new Point(this.Left + e.X - offset.X, this.Top + e.Y - offset.Y);
             }
         }
+
+        public void InitDefPreset(AudioEngine engine)
+        {
+            //Distortion
+            knobThres.Value = 0.7f;
+            knobDist.Value = 0.2f;
+            engine.UpdThres(knobThres.Value * 5);
+            engine.UpdDist(knobDist.Value * 10);
+
+            knobDelay.Value = 0.5f;
+            knobFeedback.Value = 0.2f;
+            knobDelayMix.Value = 0.5f;
+            engine.UpdDelayTime((int)(knobDelay.Value * 1000));
+            engine.UpdFeedback(knobFeedback.Value);
+            engine.UpdWetMix(knobDelayMix.Value);
+
+            //Other
+            knobOut.Value = 1/2f;
+            engine.SetInVol(knobOut.Value);
+        }
+
         private void DistortionNeonPedal_Load(object sender, EventArgs e)
         {
             // Привязываем события мыши к панели (если это не сделано в дизайнере)
@@ -67,22 +88,35 @@ namespace dfsa.ui
                 SampleRate = 44100
             };
             engine = new AudioEngine(config);
-            knobVol.Value = 0.5f;
-            knobTone.Value = 0.5f;
-            knobDist.Value = 0.5f;
+
             //_distortionEffect = new Clipper(distortionAmount: knobDist.Value, tone: knobTone.Value, volume: knobVol.Value);
-            knobVol.ValueChanged += (s, e) =>
-            {
-                engine.UpdVol(knobVol.Value * 10);
+            #region ValueChanged
+
+            #region Distortion
+          
+            knobThres.ValueChanged += (s, e) => engine.UpdThres(knobThres.Value * 5);
+            knobDist.ValueChanged += (s, e) => engine.UpdDist(knobDist.Value * 10);
+
+
+            #endregion
+
+            #region Delay
+
+            knobDelay.ValueChanged += (s, e) => engine.UpdDelayTime((int)(knobDelay.Value*1000));
+            knobFeedback.ValueChanged += (s, e) => engine.UpdFeedback(knobFeedback.Value);
+            knobDelayMix.ValueChanged += (s, e) => engine.UpdWetMix(knobDelayMix.Value);
+
+            #endregion
+
+            knobIn.ValueChanged += (s, e) => engine.SetInVol(knobIn.Value);
+            knobOut.ValueChanged += (s, e) => 
+            { 
+                engine.SetOutVol(knobOut.Value);
+                engine.UpdWetMix(knobDelayMix.Value*knobOut.Value);
             };
-            knobTone.ValueChanged += (s, e) =>
-            {
-                engine.UpdThres(knobTone.Value);
-            };
-            knobDist.ValueChanged += (s, e) =>
-            {
-                engine.UpdDist(knobDist.Value * 10);
-            };
+
+
+            #endregion
             // Можно добавить эффекты
             // engine.AddEffect(new MyReverb());
             // engine.AddEffect(new MyCompressor());
@@ -110,6 +144,8 @@ namespace dfsa.ui
             {
                 audioData[i] = random.Next(-100, 100) / 100f; // Пример синусоиды
             }
+            InitDefPreset(engine);
+
         }
 
         private void label2_Click(object sender, EventArgs e)

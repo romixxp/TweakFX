@@ -6,6 +6,8 @@ using System.Threading;
 using TweakFX.core.effects.distortion;
 using TweakFX.ui.controls;
 using dfsa.ui;
+using TweakFX.core.effects.delay_reeverb;
+using System.Reflection.Metadata.Ecma335;
 
 namespace TweakFX.core
 {
@@ -16,6 +18,8 @@ namespace TweakFX.core
         private readonly AsioInput _asioInput;
         private readonly AsioOutput _asioOutput;
         private readonly EffectChain _effectChain;
+        private float volume = 1.0f;
+        private float involume = 1.0f;
         private VBCableAudioSender sender = new VBCableAudioSender();
 
         public AudioEngine(AsioConfig config)
@@ -30,37 +34,46 @@ namespace TweakFX.core
         {
             _effectChain.AddEffect(effect);
         }
-        Clipper2 effect = new core.effects.distortion.Clipper2();
+        Clipper2 clipper = new core.effects.distortion.Clipper2();
+        Delay delay = new core.effects.delay_reeverb.Delay(500);
 
-        public void UpdDist(float newDistortionAmount)
-        {
-            effect.UpdateDistortionAmount(newDistortionAmount);
-        }
+        #region Updaters
+        
+        #region Distortion
 
-        // Метод для обновления тона
-        public void UpdTone(float newTone)
-        {
-            effect.UpdateTone(newTone);
-        }
-        public void UpdThres(float newThres)
-        {
-            effect.UpdateThreshold(newThres);
-        }
+        public void UpdDist(float newDistortionAmount) => clipper.UpdateDistortionAmount(newDistortionAmount);
+        public void UpdTone(float newTone) => clipper.UpdateTone(newTone);
+        public void UpdThres(float newThres) => clipper.UpdateThreshold(newThres);
+        public void UpdVol(float newVolume) => clipper.UpdateVolume(newVolume);
 
-        // Метод для обновления громкости
-        public void UpdVol(float newVolume)
-        {
-            effect.UpdateVolume(newVolume);
-        }
+        #endregion
 
+        #region Delay
+
+        public void UpdDelayTime(int delayTimeInMs) => delay.UpdateDelayTime(delayTimeInMs);
+        public void UpdFeedback(float feedback) => delay.UpdateFeedback(feedback);
+        public void UpdWetMix(float wetMix) { delay.UpdateWetMix(wetMix); delay.UpdateDryMix(1f - wetMix); }
+
+        #endregion
+
+        public float SetInVol(float vol) { return volume = vol * 2f; }
+        public float SetOutVol(float vol) { return involume = vol * 2f; }
+
+
+        #endregion
         public void Start()
         {
             _asioOutput.Init();
             DistortionNeonPedal form = new();
-            _effectChain.AddEffect(effect);
+            _effectChain.AddEffect(clipper);
+            _effectChain.AddEffect(delay);
             _asioInput.AudioAvailable += (s, buffer) =>
             {
+                for (int i = 0; i < buffer.Length; i++)
+                    buffer[i] *= involume;
                 _effectChain.Process(buffer, 0, buffer.Length);
+                for (int i = 0; i < buffer.Length; i++)
+                    buffer[i] *= volume;
                 var stereoBuffer = MonoToStereo(buffer);
                 _asioOutput.Write(stereoBuffer);
                 sender.SendBuffer(FloatToPcm16Bytes(stereoBuffer));
