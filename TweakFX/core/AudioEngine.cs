@@ -6,8 +6,9 @@ using System.Threading;
 using TweakFX.core.effects.distortion;
 using TweakFX.ui.controls;
 using dfsa.ui;
-using TweakFX.core.effects.delay_reeverb;
+using TweakFX.core.effects.delay_reverb;
 using System.Reflection.Metadata.Ecma335;
+using TweakFX.core.effects.delay_reverb;
 
 namespace TweakFX.core
 {
@@ -20,6 +21,8 @@ namespace TweakFX.core
         private readonly EffectChain _effectChain;
         private float volume = 1.0f;
         private float involume = 1.0f;
+        private float mix = 0.5f;
+        private float processFraction = 1.0f;
         private VBCableAudioSender sender = new VBCableAudioSender();
 
         public AudioEngine(AsioConfig config)
@@ -35,10 +38,10 @@ namespace TweakFX.core
             _effectChain.AddEffect(effect);
         }
         Clipper2 clipper = new core.effects.distortion.Clipper2();
-        Delay delay = new core.effects.delay_reeverb.Delay(500);
+        Delay delay = new core.effects.delay_reverb.Delay(500);
 
         #region Updaters
-        
+
         #region Distortion
 
         public void UpdDist(float newDistortionAmount) => clipper.UpdateDistortionAmount(newDistortionAmount);
@@ -58,7 +61,7 @@ namespace TweakFX.core
 
         public float SetInVol(float vol) { return volume = vol * 2f; }
         public float SetOutVol(float vol) { return involume = vol * 2f; }
-
+        public float SetMix(float mix) { return this.mix = mix; }
 
         #endregion
         public void Start()
@@ -71,9 +74,33 @@ namespace TweakFX.core
             {
                 for (int i = 0; i < buffer.Length; i++)
                     buffer[i] *= involume;
-                _effectChain.Process(buffer, 0, buffer.Length);
+                // До обработки: сохраним копию "сухого" сигнала
+                float[] dryBuffer = buffer.ToArray();
+
+                // Пропорциональное применение эффектов
+                int processedSamples = (int)(buffer.Length * processFraction); // processFraction от 0.0 до 1.0
+                if (processedSamples > 0)
+                {
+                    _effectChain.Process(buffer, 0, processedSamples);
+                }
+
+                // Если нужно, дополнительно обработать остаток буфера без эффектов
+                if (processedSamples < buffer.Length)
+                {
+                    // Копируем сухой сигнал обратно в необработанную часть
+                    Array.Copy(dryBuffer, processedSamples, buffer, processedSamples, buffer.Length - processedSamples);
+                }
+
+                // Теперь миксуем dry и wet сигналы
+                for (int i = 0; i < buffer.Length; i++)
+                {
+                    buffer[i] = dryBuffer[i] * (1f - mix) + buffer[i] * mix;
+                }
+
+                // Применяем громкость после эффектов
                 for (int i = 0; i < buffer.Length; i++)
                     buffer[i] *= volume;
+
                 var stereoBuffer = MonoToStereo(buffer);
                 _asioOutput.Write(stereoBuffer);
                 sender.SendBuffer(FloatToPcm16Bytes(stereoBuffer));
@@ -83,6 +110,7 @@ namespace TweakFX.core
                     _lastBuffer = buffer.ToArray(); // сохраняем только float[]
                 }
             };
+
 
             _asioInput.Start();
         }

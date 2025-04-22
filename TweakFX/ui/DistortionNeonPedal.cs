@@ -7,6 +7,7 @@ using TweakFX.ui;
 using TweakFX.ui.controls;
 using TweakFX.ui.controls.VisualAudio;
 using TweakFX.ui.controls.unused;
+using dfsa.ui.controls;
 
 
 namespace dfsa.ui
@@ -18,6 +19,8 @@ namespace dfsa.ui
         private Clipper _distortionEffect;
         AudioEngine engine;
         private System.Windows.Forms.Timer oscilloscopeTimer;
+        private PresetManager _presetManager;
+        private List<DistortionKnob> _distortionKnobs;
         public DistortionNeonPedal()
         {
             InitializeComponent();
@@ -70,8 +73,12 @@ namespace dfsa.ui
             engine.UpdWetMix(knobDelayMix.Value);
 
             //Other
-            knobOut.Value = 1/2f;
-            engine.SetInVol(knobOut.Value);
+            knobOut.Value = 1 / 2f;
+            knobIn.Value = 1 / 2f;
+            knobAVMix.Value = 1f;
+            engine.SetOutVol(knobOut.Value);
+            engine.SetInVol(knobIn.Value);
+            engine.SetMix(knobAVMix.Value);
         }
 
         private void DistortionNeonPedal_Load(object sender, EventArgs e)
@@ -93,7 +100,7 @@ namespace dfsa.ui
             #region ValueChanged
 
             #region Distortion
-          
+
             knobThres.ValueChanged += (s, e) => engine.UpdThres(knobThres.Value * 5);
             knobDist.ValueChanged += (s, e) => engine.UpdDist(knobDist.Value * 10);
 
@@ -102,18 +109,19 @@ namespace dfsa.ui
 
             #region Delay
 
-            knobDelay.ValueChanged += (s, e) => engine.UpdDelayTime((int)(knobDelay.Value*1000));
+            knobDelay.ValueChanged += (s, e) => engine.UpdDelayTime((int)(knobDelay.Value * 1000));
             knobFeedback.ValueChanged += (s, e) => engine.UpdFeedback(knobFeedback.Value);
             knobDelayMix.ValueChanged += (s, e) => engine.UpdWetMix(knobDelayMix.Value);
 
             #endregion
 
             knobIn.ValueChanged += (s, e) => engine.SetInVol(knobIn.Value);
-            knobOut.ValueChanged += (s, e) => 
-            { 
+            knobOut.ValueChanged += (s, e) =>
+            {
                 engine.SetOutVol(knobOut.Value);
-                engine.UpdWetMix(knobDelayMix.Value*knobOut.Value);
+                engine.UpdWetMix(knobDelayMix.Value * knobOut.Value);
             };
+            knobAVMix.ValueChanged += (s, e) => engine.SetMix(knobAVMix.Value);
 
 
             #endregion
@@ -123,7 +131,7 @@ namespace dfsa.ui
             oscilloscopeTimer = new System.Windows.Forms.Timer
             {
                 Interval = 20
-            };          
+            };
 
 
             oscilloscopeTimer.Tick += (s, e) =>
@@ -146,12 +154,28 @@ namespace dfsa.ui
             }
             InitDefPreset(engine);
 
+            _distortionKnobs = new List<DistortionKnob>();
+            FindDistortionKnobs(this.Controls, _distortionKnobs);
+
+            _presetManager = new PresetManager(_distortionKnobs);
         }
 
-        private void label2_Click(object sender, EventArgs e)
+        private void FindDistortionKnobs(Control.ControlCollection controls, List<DistortionKnob> list)
         {
-
+            foreach (Control control in controls)
+            {
+                if (control is DistortionKnob knob)
+                {
+                    list.Add(knob);
+                }
+                if (control.HasChildren)
+                {
+                    FindDistortionKnobs(control.Controls, list);
+                }
+            }
         }
+
+
 
         private void preferencesToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -174,20 +198,12 @@ namespace dfsa.ui
             Application.Exit();
         }
 
-        private void knobVol_Click(object sender, EventArgs e)
-        {
 
-        }
 
-        private void DistortionNeonPedal_FormClosing(object sender, FormClosingEventArgs e)
-        {
-            engine?.Stop();
-        }
 
-        private void panel2_Paint(object sender, PaintEventArgs e)
-        {
 
-        }
+
+
         private void GenerateTestData()
         {
             /*          float[] magnitudes = new float[512];
@@ -197,9 +213,61 @@ namespace dfsa.ui
                           magnitudes[i] = (float)(0.5 * (Math.Sin(i * 0.05 + t * 5) + 1));
                       }  */
 
-    
+
         }
 
+        private void pnlClose_Paint(object sender, PaintEventArgs e)
+        {
 
+        }
+        private void SavePresetWithDialog()
+        {
+            using (SaveFileDialog saveFileDialog = new SaveFileDialog())
+            {
+                saveFileDialog.Filter = "TweakFX Preset (*.tfxp)|*.tfxp";
+                saveFileDialog.Title = "Save Preset";
+                saveFileDialog.DefaultExt = "tfxp";
+                saveFileDialog.AddExtension = true;
+
+                if (saveFileDialog.ShowDialog() == DialogResult.OK)
+                {
+                    _presetManager.SavePreset(saveFileDialog.FileName);
+                }
+            }
+        }
+
+        private void LoadPresetWithDialog()
+        {
+            using (OpenFileDialog openFileDialog = new OpenFileDialog())
+            {
+                openFileDialog.Filter = "TweakFX Preset (*.tfxp)|*.tfxp";
+                openFileDialog.Title = "Load Preset";
+
+                if (openFileDialog.ShowDialog() == DialogResult.OK)
+                {
+                    _presetManager.LoadPreset(openFileDialog.FileName);
+                }
+            }
+        }
+        private void SavePreset(string path) => _presetManager.SavePreset(path);
+        private void LoadPreset(string path) => _presetManager.LoadPreset(path);
+        private void DistortionNeonPedal_FormClosing(object sender, FormClosingEventArgs e) => engine?.Stop();
+        private void pnlClose_Click(object sender, EventArgs e) => Application.Exit();
+        private void pnlMinimize_MouseUp(object sender, MouseEventArgs e) => pnlMinimize.BackColor = Color.FromArgb(20, 255, 255, 255);
+        private void pnlMinimize_MouseDown(object sender, MouseEventArgs e) => pnlMinimize.BackColor = Color.FromArgb(10, 255, 255, 255);
+        private void pnlMinimize_MouseLeave(object sender, EventArgs e) => pnlMinimize.BackColor = Color.Transparent;
+        private void pnlMinimize_MouseEnter(object sender, EventArgs e) => pnlMinimize.BackColor = Color.FromArgb(20, 255, 255, 255);
+        private void pnlClose_MouseDown(object sender, MouseEventArgs e) => pnlClose.BackColor = Color.FromArgb(30, 255, 100, 100);
+        private void pnlClose_MouseUp(object sender, MouseEventArgs e) => pnlClose.BackColor = Color.FromArgb(50, 255, 100, 100);
+        private void pnlClose_MouseEnter(object sender, EventArgs e) => pnlClose.BackColor = Color.FromArgb(50, 255, 100, 100);
+        private void pnlClose_MouseLeave(object sender, EventArgs e) => pnlClose.BackColor = Color.Transparent;
+        private void pnlMinimize_Click(object sender, EventArgs e) => this.WindowState = FormWindowState.Minimized;
+        private void saveToolStripMenuItem_Click(object sender, EventArgs e) => SavePresetWithDialog();
+        private void loadToolStripMenuItem_Click(object sender, EventArgs e) => LoadPresetWithDialog();
+
+        private void panel1_Paint(object sender, PaintEventArgs e)
+        {
+
+        }
     }
 }

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TweakFX.core.effects.delay_reeverb
+namespace TweakFX.core.effects.delay_reverb
 {
     public class Delay : IAudioEffect
     {

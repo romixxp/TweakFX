@@ -11,7 +11,7 @@ namespace dfsa.ui.controls
     using System.Drawing;
     using System.Drawing.Drawing2D;
     using System.Windows.Forms;
-    class DistortionKnob : Control
+    public class DistortionKnob : Control
     {
         private float angle = -135f - 90f;
         private const float MinAngle = -135f - 90f;
@@ -84,7 +84,7 @@ namespace dfsa.ui.controls
             }
 
             // Крышка
-            
+
             using (GraphicsPath path = new())
             {
                 path.AddEllipse(rect);
@@ -96,7 +96,7 @@ namespace dfsa.ui.controls
                         rect.Y + rect.Height / 2f
                     );
 
-                    brush.CenterColor = Color.FromArgb(255, 255, 255); 
+                    brush.CenterColor = Color.FromArgb(255, 255, 255);
                     brush.SurroundColors = new Color[] { Color.FromArgb(40, 40, 40) };
 
                     g.FillEllipse(brush, rect);
@@ -167,6 +167,7 @@ namespace dfsa.ui.controls
 
             return deltaAngle < 1.5f; // Пропуск для 0 дБ
         }
+
         private void DrawExternalMarker(Graphics g, Rectangle rect, float angle, float hue, bool active)
         {
             PointF start = GetPointOnCircle(rect, angle, 1.25f);
@@ -176,7 +177,7 @@ namespace dfsa.ui.controls
 
             if (active)
             {
-                penColor = ColorFromHSV(hue, 1f, 1f); // Цвет по логарифму
+                penColor = ColorFromHSV(hue + 80f, 1f, 1f); // Цвет по логарифму
             }
             else
             {
@@ -188,7 +189,6 @@ namespace dfsa.ui.controls
                 g.DrawLine(pen, start, end);
             }
         }
-
 
         public static Color ColorFromHSV(double hue, double saturation, double value)
         {

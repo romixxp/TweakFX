@@ -31,7 +31,10 @@ namespace dfsa.ui
         private void InitializeComponent()
         {
             components = new System.ComponentModel.Container();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(DistortionNeonPedal));
             panel1 = new Panel();
+            pnlMinimize = new Panel();
+            pnlClose = new Panel();
             label1 = new Label();
             label2 = new Label();
             label3 = new Label();
@@ -59,6 +62,9 @@ namespace dfsa.ui
             knobOut = new dfsa.ui.controls.DistortionKnob();
             label10 = new Label();
             label11 = new Label();
+            knobAVMix = new dfsa.ui.controls.DistortionKnob();
+            label12 = new Label();
+            panel1.SuspendLayout();
             contextMenuStrip1.SuspendLayout();
             panel2.SuspendLayout();
             panel3.SuspendLayout();
@@ -67,11 +73,47 @@ namespace dfsa.ui
             // panel1
             // 
             panel1.BackColor = Color.FromArgb(20, 255, 255, 255);
+            panel1.Controls.Add(pnlMinimize);
+            panel1.Controls.Add(pnlClose);
             panel1.Dock = DockStyle.Top;
             panel1.Location = new Point(0, 0);
             panel1.Name = "panel1";
-            panel1.Size = new Size(873, 30);
+            panel1.Size = new Size(982, 36);
             panel1.TabIndex = 0;
+            panel1.Paint += panel1_Paint;
+            // 
+            // pnlMinimize
+            // 
+            pnlMinimize.BackColor = Color.Transparent;
+            pnlMinimize.BackgroundImage = (Image)resources.GetObject("pnlMinimize.BackgroundImage");
+            pnlMinimize.BackgroundImageLayout = ImageLayout.Center;
+            pnlMinimize.Dock = DockStyle.Right;
+            pnlMinimize.Location = new Point(910, 0);
+            pnlMinimize.Name = "pnlMinimize";
+            pnlMinimize.Size = new Size(36, 36);
+            pnlMinimize.TabIndex = 21;
+            pnlMinimize.Click += pnlMinimize_Click;
+            pnlMinimize.MouseDown += pnlMinimize_MouseDown;
+            pnlMinimize.MouseEnter += pnlMinimize_MouseEnter;
+            pnlMinimize.MouseLeave += pnlMinimize_MouseLeave;
+            pnlMinimize.MouseUp += pnlMinimize_MouseUp;
+            // 
+            // pnlClose
+            // 
+            pnlClose.BackColor = Color.Transparent;
+            pnlClose.BackgroundImage = (Image)resources.GetObject("pnlClose.BackgroundImage");
+            pnlClose.BackgroundImageLayout = ImageLayout.Center;
+            pnlClose.Dock = DockStyle.Right;
+            pnlClose.Location = new Point(946, 0);
+            pnlClose.Name = "pnlClose";
+            pnlClose.Size = new Size(36, 36);
+            pnlClose.TabIndex = 20;
+            pnlClose.Click += pnlClose_Click;
+            pnlClose.Paint += pnlClose_Paint;
+            pnlClose.MouseDown += pnlClose_MouseDown;
+            pnlClose.MouseEnter += pnlClose_MouseEnter;
+            pnlClose.MouseLeave += pnlClose_MouseLeave;
+            pnlClose.MouseUp += pnlClose_MouseUp;
             // 
             // label1
             // 
@@ -94,14 +136,13 @@ namespace dfsa.ui
             label2.Size = new Size(95, 25);
             label2.TabIndex = 4;
             label2.Text = "Distortion";
-            label2.Click += label2_Click;
             // 
             // label3
             // 
             label3.AutoSize = true;
             label3.Font = new Font("Wasted", 36F, FontStyle.Bold, GraphicsUnit.Point, 0);
             label3.ForeColor = Color.White;
-            label3.Location = new Point(12, 36);
+            label3.Location = new Point(12, 48);
             label3.Name = "label3";
             label3.Size = new Size(126, 58);
             label3.TabIndex = 5;
@@ -130,7 +171,7 @@ namespace dfsa.ui
             label4.AutoSize = true;
             label4.Font = new Font("Segoe UI", 14.25F, FontStyle.Regular, GraphicsUnit.Point, 204);
             label4.ForeColor = Color.White;
-            label4.Location = new Point(584, 328);
+            label4.Location = new Point(584, 340);
             label4.Name = "label4";
             label4.Size = new Size(125, 25);
             label4.TabIndex = 9;
@@ -155,12 +196,14 @@ namespace dfsa.ui
             saveToolStripMenuItem.Name = "saveToolStripMenuItem";
             saveToolStripMenuItem.Size = new Size(100, 22);
             saveToolStripMenuItem.Text = "Save";
+            saveToolStripMenuItem.Click += saveToolStripMenuItem_Click;
             // 
             // loadToolStripMenuItem
             // 
             loadToolStripMenuItem.Name = "loadToolStripMenuItem";
             loadToolStripMenuItem.Size = new Size(100, 22);
             loadToolStripMenuItem.Text = "Load";
+            loadToolStripMenuItem.Click += loadToolStripMenuItem_Click;
             // 
             // pereferencesToolStripMenuItem
             // 
@@ -179,9 +222,9 @@ namespace dfsa.ui
             // oscilloscope
             // 
             oscilloscope.BackColor = Color.Gray;
-            oscilloscope.Location = new Point(574, 97);
+            oscilloscope.Location = new Point(584, 109);
             oscilloscope.Name = "oscilloscope";
-            oscilloscope.Size = new Size(285, 109);
+            oscilloscope.Size = new Size(385, 109);
             oscilloscope.TabIndex = 10;
             oscilloscope.Text = "oscilloscope1";
             // 
@@ -194,7 +237,7 @@ namespace dfsa.ui
             panel2.Controls.Add(label1);
             panel2.Controls.Add(knobThres);
             panel2.Controls.Add(knobDist);
-            panel2.Location = new Point(12, 97);
+            panel2.Location = new Point(12, 109);
             panel2.Name = "panel2";
             panel2.Size = new Size(275, 256);
             panel2.TabIndex = 11;
@@ -221,7 +264,7 @@ namespace dfsa.ui
             panel3.Controls.Add(knobFeedback);
             panel3.Controls.Add(knobDelay);
             panel3.Controls.Add(knobDelayMix);
-            panel3.Location = new Point(293, 97);
+            panel3.Location = new Point(293, 109);
             panel3.Name = "panel3";
             panel3.Size = new Size(275, 256);
             panel3.TabIndex = 13;
@@ -299,7 +342,7 @@ namespace dfsa.ui
             // 
             // knobIn
             // 
-            knobIn.Location = new Point(593, 215);
+            knobIn.Location = new Point(593, 227);
             knobIn.Name = "knobIn";
             knobIn.Size = new Size(110, 110);
             knobIn.TabIndex = 14;
@@ -308,7 +351,7 @@ namespace dfsa.ui
             // 
             // knobOut
             // 
-            knobOut.Location = new Point(738, 215);
+            knobOut.Location = new Point(845, 227);
             knobOut.Name = "knobOut";
             knobOut.Size = new Size(110, 110);
             knobOut.TabIndex = 16;
@@ -320,7 +363,7 @@ namespace dfsa.ui
             label10.AutoSize = true;
             label10.Font = new Font("Segoe UI", 14.25F, FontStyle.Regular, GraphicsUnit.Point, 204);
             label10.ForeColor = Color.White;
-            label10.Location = new Point(719, 328);
+            label10.Location = new Point(829, 340);
             label10.Name = "label10";
             label10.Size = new Size(140, 25);
             label10.TabIndex = 15;
@@ -331,18 +374,40 @@ namespace dfsa.ui
             label11.AutoSize = true;
             label11.Font = new Font("Wasted", 36F, FontStyle.Bold);
             label11.ForeColor = Color.White;
-            label11.Location = new Point(646, 36);
+            label11.Location = new Point(743, 48);
             label11.Name = "label11";
             label11.Size = new Size(227, 58);
             label11.TabIndex = 17;
             label11.Text = "Tweak FX";
             // 
+            // knobAVMix
+            // 
+            knobAVMix.Location = new Point(719, 227);
+            knobAVMix.Name = "knobAVMix";
+            knobAVMix.Size = new Size(110, 110);
+            knobAVMix.TabIndex = 19;
+            knobAVMix.Text = "distortionKnob5";
+            knobAVMix.Value = 1F;
+            // 
+            // label12
+            // 
+            label12.AutoSize = true;
+            label12.Font = new Font("Segoe UI", 14.25F, FontStyle.Regular, GraphicsUnit.Point, 204);
+            label12.ForeColor = Color.White;
+            label12.Location = new Point(726, 340);
+            label12.Name = "label12";
+            label12.Size = new Size(95, 25);
+            label12.TabIndex = 18;
+            label12.Text = "Effect Mix";
+            // 
             // DistortionNeonPedal
             // 
             AutoScaleMode = AutoScaleMode.None;
             BackColor = Color.FromArgb(21, 23, 31);
-            ClientSize = new Size(873, 367);
+            ClientSize = new Size(982, 377);
             ContextMenuStrip = contextMenuStrip1;
+            Controls.Add(knobAVMix);
+            Controls.Add(label12);
             Controls.Add(label11);
             Controls.Add(knobOut);
             Controls.Add(label10);
@@ -358,6 +423,7 @@ namespace dfsa.ui
             Text = "DistortionNeonPedal";
             FormClosing += DistortionNeonPedal_FormClosing;
             Load += DistortionNeonPedal_Load;
+            panel1.ResumeLayout(false);
             contextMenuStrip1.ResumeLayout(false);
             panel2.ResumeLayout(false);
             panel2.PerformLayout();
@@ -398,5 +464,9 @@ namespace dfsa.ui
         private controls.DistortionKnob knobOut;
         private Label label10;
         private Label label11;
+        private controls.DistortionKnob knobAVMix;
+        private Label label12;
+        private Panel pnlClose;
+        private Panel pnlMinimize;
     }
 }
