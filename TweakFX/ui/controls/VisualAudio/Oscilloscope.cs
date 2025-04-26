@@ -24,7 +24,7 @@ namespace TweakFX.ui.controls.VisualAudio
         // Метод для обновления данных в осциллографе
         public void UpdateBuffer(float[] newSamples)
         {
-            // Сдвигаем данные влево для "освобождения" правой части массива
+            
             Array.Copy(_samples, newSamples.Length, _samples, 0, _samples.Length - newSamples.Length);
 
             // Добавляем новые сэмплы в конец массива

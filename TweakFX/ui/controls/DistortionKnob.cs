@@ -21,8 +21,11 @@ namespace dfsa.ui.controls
 
         public DistortionKnob()
         {
-            DoubleBuffered = true;
-            Size = new Size(100, 100);
+            this.SetStyle(ControlStyles.SupportsTransparentBackColor, true);
+            this.BackColor = Color.Transparent;
+            this.DoubleBuffered = true;
+            this.Size = new Size(100, 100);
+
             MouseDown += Knob_MouseDown;
             MouseMove += Knob_MouseMove;
             MouseUp += Knob_MouseUp;
@@ -32,6 +35,10 @@ namespace dfsa.ui.controls
         private float value;
 
         public event EventHandler ValueChanged;
+
+        public Color Fade1 { get; set; } = Color.FromArgb(0, 238, 255);
+        public Color Fade2 { get; set; } = Color.FromArgb(0, 255, 51);
+        public Color Fade3 { get; set; } = Color.FromArgb(0, 99, 98);
 
         public float Value
         {
@@ -60,7 +67,7 @@ namespace dfsa.ui.controls
 
         protected override void OnPaint(PaintEventArgs e)
         {
-            base.OnPaint(e);
+            //base.OnPaint(e);
             Graphics g = e.Graphics;
             g.SmoothingMode = SmoothingMode.AntiAlias;
             int w = Width, h = Height;
@@ -76,7 +83,7 @@ namespace dfsa.ui.controls
                     //                    brush.CenterColor = Color.Magenta;
                     //                    brush.SurroundColors = new Color[] { Color.FromArgb(60, 0, 60) };
                     ColorBlend colorBlend = new ColorBlend();
-                    colorBlend.Colors = [Color.FromArgb(0, 238, 255), Color.FromArgb(0, 255, 51), Color.FromArgb(0, 99, 98)];
+                    colorBlend.Colors = [Fade1, Fade2, Fade3];
                     colorBlend.Positions = [0f, 0.6f, 1f];
                     fillBrush.InterpolationColors = colorBlend;
                     g.FillEllipse(fillBrush, shadowCircle);
@@ -123,25 +130,14 @@ namespace dfsa.ui.controls
             for (int i = 0; i <= markers; i++)
             {
                 float normalized = i / (float)markers;
-
-                // Логарифмический сдвиг к правой стороне
                 float logColorShift = (float)Math.Log10(1 + 9 * (1f - normalized)); // от 1 к 0
-
-                // Инвертированный hue: теперь зелёного больше
                 float hue = 120f * logColorShift;
-
                 float markerAngle = MinAngle + i * (270f / markers);
-
                 bool isActive = normalized <= Value;
                 if (Value == 0f)
                     isActive = false;
-
                 DrawExternalMarker(g, rect, markerAngle, hue, isActive);
             }
-
-
-
-            // Индикатор
             PointF knobStart = GetPointOnCircle(rect, angle - 2, 0.7f);
             PointF knobEnd = GetPointOnCircle(rect, angle - 2, 0.9f);
             using (Pen knobPen = new Pen(Color.White, 4))
@@ -153,10 +149,7 @@ namespace dfsa.ui.controls
         }
         private bool IsInSkipRange(float markerAngle)
         {
-            // Рассчитываем, нужно ли пропустить маркер
             float deltaAngle = Math.Abs(markerAngle - 0f);
-
-            // Проверка, находится ли маркер в пределах от 0 дБ и соседей
             for (int i = 1; i <= numNeighboursToSkip; i++)
             {
                 if (Math.Abs(markerAngle - i * (270f / 60)) < 1.5f || Math.Abs(markerAngle + i * (270f / 60)) < 1.5f)
@@ -165,7 +158,7 @@ namespace dfsa.ui.controls
                 }
             }
 
-            return deltaAngle < 1.5f; // Пропуск для 0 дБ
+            return deltaAngle < 1.5f;
         }
 
         private void DrawExternalMarker(Graphics g, Rectangle rect, float angle, float hue, bool active)
@@ -177,7 +170,7 @@ namespace dfsa.ui.controls
 
             if (active)
             {
-                penColor = ColorFromHSV(hue + 80f, 1f, 1f); // Цвет по логарифму
+                penColor = ColorFromHSV(hue + 80f, 1f, 1f);
             }
             else
             {
@@ -236,21 +229,15 @@ namespace dfsa.ui.controls
         {
             if (isDragging)
             {
-                int deltaX = e.X - lastMousePosition.X;
-                int deltaY = e.Y - lastMousePosition.Y;
-
-                // Чувствительность — подбери под себя
+                int deltaX = e.Y - lastMousePosition.Y;
+                //int deltaY = e.Y - lastMousePosition.Y;
                 float sensitivity = 1.1f;
-                float deltaAngleX = deltaX * sensitivity;
-
+                float deltaAngleX = deltaX * -sensitivity;
                 float newAngleX = angle + deltaAngleX;
                 newAngleX = Math.Max(MinAngle, Math.Min(MaxAngle, newAngleX));
                 angle = newAngleX;
-
                 Value = (angle - MinAngle) / (MaxAngle - MinAngle);
-
                 lastMousePosition = e.Location;
-
                 Invalidate();
             }
         }

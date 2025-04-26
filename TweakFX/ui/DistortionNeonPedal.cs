@@ -8,6 +8,7 @@ using TweakFX.ui.controls;
 using TweakFX.ui.controls.VisualAudio;
 using TweakFX.ui.controls.unused;
 using dfsa.ui.controls;
+using System.Drawing.Drawing2D;
 
 
 namespace dfsa.ui
@@ -24,12 +25,8 @@ namespace dfsa.ui
         public DistortionNeonPedal()
         {
             InitializeComponent();
-            this.Text = "Draggable Top Panel Example";
 
-            // Предположим, что панель topPanel добавлена через дизайнер
-            // Пример: панель закреплена вверху и ее свойства установлены в дизайнере
-            // topPanel.Dock = DockStyle.Top; // Убедитесь, что панель докируется к верху формы
-            panel1.Cursor = Cursors.Default; // Установим курсор для перетаскивания
+            panel1.Cursor = Cursors.Default;
 
 
         }
@@ -39,7 +36,7 @@ namespace dfsa.ui
             if (e.Button == MouseButtons.Left)
             {
                 isDragging = true;
-                offset = new Point(e.X, e.Y); // Сохраняем смещение мыши относительно панели
+                offset = new Point(e.X, e.Y);
             }
         }
 
@@ -52,7 +49,6 @@ namespace dfsa.ui
         {
             if (isDragging)
             {
-                // Смещаем форму на расстояние от начальной точки
                 this.Location = new Point(this.Left + e.X - offset.X, this.Top + e.Y - offset.Y);
             }
         }
@@ -65,6 +61,7 @@ namespace dfsa.ui
             engine.UpdThres(knobThres.Value * 5);
             engine.UpdDist(knobDist.Value * 10);
 
+            //Delay
             knobDelay.Value = 0.5f;
             knobFeedback.Value = 0.2f;
             knobDelayMix.Value = 0.5f;
@@ -72,18 +69,35 @@ namespace dfsa.ui
             engine.UpdFeedback(knobFeedback.Value);
             engine.UpdWetMix(knobDelayMix.Value);
 
+            //Reverb
+            knobDecay.Value = 0.1f;
+            knobDamping.Value = 0.3f;
+            knobPreDelay.Value = 0.1f;
+            knobDelayMix.Value = 0.5f;
+            engine.UpdDecay(knobDecay.Value * 70000);
+            engine.UpdDamping(knobDamping.Value);
+            engine.UpdPreDelay(knobPreDelay.Value * 1000);
+            engine.UpdWetMixReverb(knobDelayMix.Value * knobDecay.Value);
+
+            //Pitch Shifter
+            knobShift.Value = 0.0f;
+            knobPitchMix.Value = 0f;
+            knobWindowSize.Value = 0.5f;
+            engine.UpdPitchShiftMix(knobPitchMix.Value);
+            engine.UpdPitchShift(knobShift.Value);
+
+
             //Other
-            knobOut.Value = 1 / 2f;
-            knobIn.Value = 1 / 2f;
+            knobOut.Value = 1 / 4f;
+            knobIn.Value = 1 / 4f;
             knobAVMix.Value = 1f;
-            engine.SetOutVol(knobOut.Value);
-            engine.SetInVol(knobIn.Value);
+            engine.SetOutVol(knobOut.Value * 2);
+            engine.SetInVol(knobIn.Value * 2);
             engine.SetMix(knobAVMix.Value);
         }
 
         private void DistortionNeonPedal_Load(object sender, EventArgs e)
         {
-            // Привязываем события мыши к панели (если это не сделано в дизайнере)
             panel1.MouseDown += topPanel_MouseDown;
             panel1.MouseUp += topPanel_MouseUp;
             panel1.MouseMove += topPanel_MouseMove;
@@ -115,17 +129,32 @@ namespace dfsa.ui
 
             #endregion
 
-            knobIn.ValueChanged += (s, e) => engine.SetInVol(knobIn.Value);
+            #region Reverb
+
+            knobDecay.ValueChanged += (s, e) => engine.UpdDecay(knobDecay.Value * 70000);
+            knobReverbMix.ValueChanged += (s, e) => engine.UpdWetMixReverb(knobReverbMix.Value);
+            knobDamping.ValueChanged += (s, e) => engine.UpdDamping(knobDamping.Value);
+            knobPreDelay.ValueChanged += (s, e) => engine.UpdPreDelay(knobPreDelay.Value * 1000);
+
+
+            #endregion
+
+            #region Pitch Shifter
+
+            knobPitchMix.ValueChanged += (s, e) => engine.UpdPitchShiftMix(knobPitchMix.Value);
+            knobShift.ValueChanged += (s, e) => engine.UpdPitchShift(knobShift.Value);
+
+            #endregion
+            knobIn.ValueChanged += (s, e) => engine.SetInVol(knobIn.Value * 2);
             knobOut.ValueChanged += (s, e) =>
             {
-                engine.SetOutVol(knobOut.Value);
+                engine.SetOutVol(knobOut.Value * 2);
                 engine.UpdWetMix(knobDelayMix.Value * knobOut.Value);
             };
             knobAVMix.ValueChanged += (s, e) => engine.SetMix(knobAVMix.Value);
 
 
             #endregion
-            // Можно добавить эффекты
             // engine.AddEffect(new MyReverb());
             // engine.AddEffect(new MyCompressor());
             oscilloscopeTimer = new System.Windows.Forms.Timer
@@ -136,7 +165,7 @@ namespace dfsa.ui
 
             oscilloscopeTimer.Tick += (s, e) =>
             {
-                float[] buffer = engine?.GetLatestBuffer(); // ты должен реализовать метод ниже в AudioEngine
+                float[] buffer = engine?.GetLatestBuffer();
                 if (buffer != null && buffer.Length > 0)
                 {
                     oscilloscope.UpdateBuffer(buffer);
@@ -147,11 +176,7 @@ namespace dfsa.ui
 
             engine.Start();
             float[] audioData = new float[630];
-            Random random = new();
-            for (int i = 0; i < audioData.Length; i++)
-            {
-                audioData[i] = random.Next(-100, 100) / 100f; // Пример синусоиды
-            }
+
             InitDefPreset(engine);
 
             _distortionKnobs = new List<DistortionKnob>();
@@ -266,6 +291,104 @@ namespace dfsa.ui
         private void loadToolStripMenuItem_Click(object sender, EventArgs e) => LoadPresetWithDialog();
 
         private void panel1_Paint(object sender, PaintEventArgs e)
+        {
+
+        }
+
+        private void DistortionNeonPedal_Paint(object sender, PaintEventArgs e)
+        {
+        }
+        Color fade1 = Color.FromArgb(21, 25, 46);
+        Color fade2 = Color.FromArgb(21, 23, 31);
+        protected override void OnPaint(PaintEventArgs e)
+        {
+            base.OnPaint(e);
+            using (LinearGradientBrush brush = new LinearGradientBrush(
+                this.ClientRectangle,
+                fade1,
+                fade2,
+                LinearGradientMode.Vertical))
+            {
+                e.Graphics.FillRectangle(brush, this.ClientRectangle);
+            }
+            MakeControlsTransparent(this);
+
+        }
+        private void MakeControlsTransparent(Control parent)
+        {
+            foreach (Control control in parent.Controls)
+            {
+                if (control is Label || control is DistortionKnob)
+                {
+                    control.BackColor = Color.Transparent;
+                }
+                if (control.HasChildren)
+                {
+                    MakeControlsTransparent(control);
+                }
+            }
+        }
+        private void MakeControlsRedrawed(Control parent)
+        {
+            foreach (Control control in parent.Controls)
+            {
+                if (control is Label)
+                {
+                    control.ForeColor = Color.Black;
+                    control.BackColor = Color.Transparent;
+                }
+                else if (control is DistortionKnob knob)
+                {
+                    knob.Fade1 = Color.FromArgb(220, 220, 220);
+                    knob.Fade2 = Color.FromArgb(255, 255, 255);
+                    knob.Fade3 = Color.FromArgb(100, 100, 100);
+                    MessageBox.Show($"{knob.Fade1}, {knob.Fade2}, {knob.Fade3}");
+                    knob.Invalidate();
+                    knob.Refresh();
+                }
+                fade1 = Color.FromArgb(255, 255, 255);
+                fade2 = Color.FromArgb(220, 220, 220);
+                if (control.HasChildren)
+                {
+                    MakeControlsTransparent(control);
+                }
+            }
+            Invalidate();
+        }
+        private void sunsetDriveToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            frostySynthToolStripMenuItem.Checked = false;
+            neonNightToolStripMenuItem.Checked = false;
+            monoClassicToolStripMenuItem.Checked = false;
+            sunsetDriveToolStripMenuItem.Checked = true;
+        }
+
+        private void frostySynthToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            sunsetDriveToolStripMenuItem.Checked = false;
+            neonNightToolStripMenuItem.Checked = false;
+            monoClassicToolStripMenuItem.Checked = false;
+            frostySynthToolStripMenuItem.Checked = true;
+        }
+
+        private void neonNightToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            sunsetDriveToolStripMenuItem.Checked = false;
+            frostySynthToolStripMenuItem.Checked = false;
+            monoClassicToolStripMenuItem.Checked = false;
+            neonNightToolStripMenuItem.Checked = true;
+        }
+
+        private void monoClassicToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            sunsetDriveToolStripMenuItem.Checked = false;
+            frostySynthToolStripMenuItem.Checked = false;
+            neonNightToolStripMenuItem.Checked = false;
+            monoClassicToolStripMenuItem.Checked = true;
+            MakeControlsRedrawed(this);
+        }
+
+        private void panel2_Paint(object sender, PaintEventArgs e)
         {
 
         }

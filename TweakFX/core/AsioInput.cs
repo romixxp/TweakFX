@@ -42,8 +42,8 @@ namespace TweakFX.core
 
         public void ShowControlPanel()
         {
-            var asioOut = new AsioOut("Focusrite USB ASIO"); // или выбрать по имени из AsioOut.GetDriverNames()
-            asioOut.ShowControlPanel(); // ← Открывает ASIO панель
+            var asioOut = new AsioOut("Focusrite USB ASIO");
+            asioOut.ShowControlPanel(); 
         }
         public void Stop() => _asioOut?.Stop();
     }

@@ -1,7 +1,6 @@
 using System;
 using NAudio.Wave;
 using System.Windows.Forms;
-using TweakFX; // Где лежит AsyncVirtualMicrophoneSender
 using System.Threading;
 using TweakFX.core.effects.distortion;
 using TweakFX.ui.controls;
@@ -9,6 +8,9 @@ using dfsa.ui;
 using TweakFX.core.effects.delay_reverb;
 using System.Reflection.Metadata.Ecma335;
 using TweakFX.core.effects.delay_reverb;
+using TweakFX.core.mics;
+using System.Threading.Tasks;
+using TweakFX.core.effects.pitch;
 
 namespace TweakFX.core
 {
@@ -38,7 +40,9 @@ namespace TweakFX.core
             _effectChain.AddEffect(effect);
         }
         Clipper2 clipper = new core.effects.distortion.Clipper2();
-        Delay delay = new core.effects.delay_reverb.Delay(500);
+        Delay delay = new core.effects.delay_reverb.Delay(250);
+        Reverb reverb = new core.effects.delay_reverb.Reverb(decayMs: 1500, preDelayMs: 0);
+        PitchShifter pitchShifter = new PitchShifter(1f, 50, 44100); // Параметры по умолчанию: 1.0f, 50 мс, 44100 Гц
 
         #region Updaters
 
@@ -59,45 +63,65 @@ namespace TweakFX.core
 
         #endregion
 
+        #region Reverb
+
+        public void UpdDecay(float newdecay) => reverb.SetDecay(newdecay);
+        public void UpdDamping(float newdamping) => reverb.SetDamping(newdamping);
+        public void UpdPreDelay(float newpredelay) => reverb.SetPreDelay(newpredelay);
+        public void UpdWetMixReverb(float wetMix) => reverb.SetDryWetMix(wetMix, 1f - wetMix);
+
+        #endregion
+
+        #region Pitch Shifter
+
+        public void UpdPitchShift(float pitchShift) => pitchShifter.SetPitchShift(pitchShift*2);
+        public void UpdPitchShiftMix(float mix) => pitchShifter.Mix = mix;
+
+        #endregion
+
         public float SetInVol(float vol) { return volume = vol * 2f; }
         public float SetOutVol(float vol) { return involume = vol * 2f; }
         public float SetMix(float mix) { return this.mix = mix; }
 
         #endregion
-        public void Start()
+
+
+        SquareWaveGenerator generator = new SquareWaveGenerator(44100, 2000, durationSeconds: 2);
+        public async Task Start()
         {
             _asioOutput.Init();
             DistortionNeonPedal form = new();
             _effectChain.AddEffect(clipper);
             _effectChain.AddEffect(delay);
+            _effectChain.AddEffect(reverb);
+            _effectChain.AddEffect(pitchShifter);
+            /*float[] _buffer = { 0 };
+            for (int i = 0; i < 5; i++)
+           
+                generator.FillBuffer(_buffer);
+                _asioOutput.Write(_buffer);
+                await Task.Delay(250);
+            }*/
             _asioInput.AudioAvailable += (s, buffer) =>
             {
                 for (int i = 0; i < buffer.Length; i++)
                     buffer[i] *= involume;
-                // До обработки: сохраним копию "сухого" сигнала
                 float[] dryBuffer = buffer.ToArray();
 
-                // Пропорциональное применение эффектов
                 int processedSamples = (int)(buffer.Length * processFraction); // processFraction от 0.0 до 1.0
                 if (processedSamples > 0)
                 {
                     _effectChain.Process(buffer, 0, processedSamples);
                 }
 
-                // Если нужно, дополнительно обработать остаток буфера без эффектов
                 if (processedSamples < buffer.Length)
                 {
-                    // Копируем сухой сигнал обратно в необработанную часть
                     Array.Copy(dryBuffer, processedSamples, buffer, processedSamples, buffer.Length - processedSamples);
                 }
-
-                // Теперь миксуем dry и wet сигналы
                 for (int i = 0; i < buffer.Length; i++)
                 {
                     buffer[i] = dryBuffer[i] * (1f - mix) + buffer[i] * mix;
                 }
-
-                // Применяем громкость после эффектов
                 for (int i = 0; i < buffer.Length; i++)
                     buffer[i] *= volume;
 
@@ -107,11 +131,9 @@ namespace TweakFX.core
 
                 lock (_bufferLock)
                 {
-                    _lastBuffer = buffer.ToArray(); // сохраняем только float[]
+                    _lastBuffer = buffer.ToArray();
                 }
             };
-
-
             _asioInput.Start();
         }
 
@@ -122,7 +144,7 @@ namespace TweakFX.core
         {
             lock (_bufferLock)
             {
-                return _lastBuffer.ToArray(); // возвращаем копию
+                return _lastBuffer.ToArray();
             }
         }
 
