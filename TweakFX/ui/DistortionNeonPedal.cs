@@ -72,12 +72,12 @@ namespace dfsa.ui
             //Reverb
             knobDecay.Value = 0.1f;
             knobDamping.Value = 0.3f;
-            knobPreDelay.Value = 0.1f;
-            knobDelayMix.Value = 0.5f;
+            knobPreDelay.Value = 0f;
+            knobReverbMix.Value = 0.2f;
             engine.UpdDecay(knobDecay.Value * 70000);
             engine.UpdDamping(knobDamping.Value);
             engine.UpdPreDelay(knobPreDelay.Value * 1000);
-            engine.UpdWetMixReverb(knobDelayMix.Value * knobDecay.Value);
+            engine.UpdWetMixReverb(knobReverbMix.Value);
 
             //Pitch Shifter
             knobShift.Value = 0.0f;

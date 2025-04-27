@@ -17,6 +17,7 @@ namespace TweakFX.core.effects.pitch
         private float[] _window;
 
         private float _readHead;
+        private bool _bufferFilled;
 
         public PitchShifter(float pitchShift = 1.0f, int grainSizeMs = 50, int sampleRate = 44100, float mix = 1.0f)
         {
@@ -29,14 +30,15 @@ namespace TweakFX.core.effects.pitch
 
         public void SetGrainSize(int grainSizeMs)
         {
-            _grainSizeInSamples = _sampleRate * grainSizeMs / 1000f;
-            _overlap = 0.5f;
+            _grainSizeInSamples = Math.Max(32, _sampleRate * grainSizeMs / 1000f); // Минимальный размер зерна 32 сэмпла
+            _overlap = 0.5f; // можно позже сделать адаптивным
 
             _inputBufferSize = (int)(_grainSizeInSamples * 4);
             _inputBuffer = new float[_inputBufferSize];
             _inputWritePos = 0;
 
             _readHead = 0;
+            _bufferFilled = false;
 
             GenerateWindow();
         }
@@ -58,7 +60,7 @@ namespace TweakFX.core.effects.pitch
             _window = new float[size];
             for (int i = 0; i < size; i++)
             {
-                _window[i] = 0.5f * (1f - (float)Math.Cos(2.0 * Math.PI * i / (size - 1)));
+                _window[i] = 0.5f * (1f - (float)Math.Cos(2.0 * Math.PI * i / (size - 1))); // Hann window
             }
         }
 
@@ -71,6 +73,16 @@ namespace TweakFX.core.effects.pitch
                 _inputBuffer[_inputWritePos] = inputSample;
                 _inputWritePos = (_inputWritePos + 1) % _inputBufferSize;
 
+                if (!_bufferFilled)
+                {
+                    // Ждем, пока заполнится один полный зерновой буфер
+                    if (_inputWritePos >= _grainSizeInSamples)
+                        _bufferFilled = true;
+
+                    buffer[i] = inputSample;
+                    continue;
+                }
+
                 float outputSample = 0f;
 
                 // Read current grain windowed
@@ -80,8 +92,9 @@ namespace TweakFX.core.effects.pitch
                 float overlappedHead = (_readHead + _grainSizeInSamples * _overlap) % _inputBufferSize;
                 outputSample += ReadGrain(overlappedHead);
 
-                outputSample *= 0.5f; // Average the two overlapped grains
+                outputSample *= 0.5f; // Average overlapped grains
 
+                // Crossfade input and processed output
                 buffer[i] = inputSample * (1f - _mix) + outputSample * _mix;
 
                 _readHead += _pitchShift;
@@ -91,15 +104,20 @@ namespace TweakFX.core.effects.pitch
 
         private float ReadGrain(float pos)
         {
-            int basePos = (int)pos;
-            int nextPos = (basePos + 1) % _inputBufferSize;
-            float frac = pos - basePos;
+            int size = (int)_grainSizeInSamples;
 
+            // Круговое чтение
+            int basePos = (int)pos % _inputBufferSize;
+            int nextPos = (basePos + 1) % _inputBufferSize;
+            float frac = pos - (int)pos;
+
+            // Линейная интерполяция для плавности
             float sample = (1f - frac) * _inputBuffer[basePos] + frac * _inputBuffer[nextPos];
 
-            int grainIndex = (int)(pos % _grainSizeInSamples);
+            int grainIndex = (int)((pos % size + size) % size); // гарантия вхождения в окно
             if (grainIndex < 0 || grainIndex >= _window.Length) return 0f;
 
+            // Оконное умножение
             return sample * _window[grainIndex];
         }
     }
