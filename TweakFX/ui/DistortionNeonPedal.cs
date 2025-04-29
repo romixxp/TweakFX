@@ -9,6 +9,7 @@ using TweakFX.ui.controls.VisualAudio;
 using TweakFX.ui.controls.unused;
 using dfsa.ui.controls;
 using System.Drawing.Drawing2D;
+using System.Diagnostics;
 
 
 namespace dfsa.ui
@@ -22,15 +23,13 @@ namespace dfsa.ui
         private System.Windows.Forms.Timer oscilloscopeTimer;
         private PresetManager _presetManager;
         private List<DistortionKnob> _distortionKnobs;
+        private bool isFrameDrawing = true;
         public DistortionNeonPedal()
         {
             InitializeComponent();
-
-            panel1.Cursor = Cursors.Default;
-
-
+            this.FormBorderStyle = FormBorderStyle.None;
+            this.DoubleBuffered = true;
         }
-
         private void topPanel_MouseDown(object sender, MouseEventArgs e)
         {
             if (e.Button == MouseButtons.Left)
@@ -39,12 +38,10 @@ namespace dfsa.ui
                 offset = new Point(e.X, e.Y);
             }
         }
-
         private void topPanel_MouseUp(object sender, MouseEventArgs e)
         {
             isDragging = false;
         }
-
         private void topPanel_MouseMove(object sender, MouseEventArgs e)
         {
             if (isDragging)
@@ -52,7 +49,6 @@ namespace dfsa.ui
                 this.Location = new Point(this.Left + e.X - offset.X, this.Top + e.Y - offset.Y);
             }
         }
-
         public void InitDefPreset(AudioEngine engine)
         {
             //Distortion
@@ -80,7 +76,7 @@ namespace dfsa.ui
             engine.UpdWetMixReverb(knobReverbMix.Value);
 
             //Pitch Shifter
-            knobShift.Value = 0.0f;
+            knobShift.Value = 0.5f;
             knobPitchMix.Value = 0f;
             knobWindowSize.Value = 0.5f;
             engine.UpdPitchShiftMix(knobPitchMix.Value);
@@ -95,12 +91,13 @@ namespace dfsa.ui
             engine.SetInVol(knobIn.Value * 2);
             engine.SetMix(knobAVMix.Value);
         }
-
         private void DistortionNeonPedal_Load(object sender, EventArgs e)
         {
+            MakeControlsTransparent(this);
             panel1.MouseDown += topPanel_MouseDown;
             panel1.MouseUp += topPanel_MouseUp;
             panel1.MouseMove += topPanel_MouseMove;
+
             var config = new AsioConfig
             {
                 DriverName = "Focusrite USB ASIO",
@@ -117,7 +114,6 @@ namespace dfsa.ui
 
             knobThres.ValueChanged += (s, e) => engine.UpdThres(knobThres.Value * 5);
             knobDist.ValueChanged += (s, e) => engine.UpdDist(knobDist.Value * 10);
-
 
             #endregion
 
@@ -136,7 +132,6 @@ namespace dfsa.ui
             knobDamping.ValueChanged += (s, e) => engine.UpdDamping(knobDamping.Value);
             knobPreDelay.ValueChanged += (s, e) => engine.UpdPreDelay(knobPreDelay.Value * 1000);
 
-
             #endregion
 
             #region Pitch Shifter
@@ -145,6 +140,7 @@ namespace dfsa.ui
             knobShift.ValueChanged += (s, e) => engine.UpdPitchShift(knobShift.Value);
 
             #endregion
+
             knobIn.ValueChanged += (s, e) => engine.SetInVol(knobIn.Value * 2);
             knobOut.ValueChanged += (s, e) =>
             {
@@ -184,7 +180,6 @@ namespace dfsa.ui
 
             _presetManager = new PresetManager(_distortionKnobs);
         }
-
         private void FindDistortionKnobs(Control.ControlCollection controls, List<DistortionKnob> list)
         {
             foreach (Control control in controls)
@@ -199,9 +194,6 @@ namespace dfsa.ui
                 }
             }
         }
-
-
-
         private void preferencesToolStripMenuItem_Click(object sender, EventArgs e)
         {
             //AsioVisualConfig virtconf = new AsioVisualConfig();
@@ -216,19 +208,11 @@ namespace dfsa.ui
             AsioInput asioInput = new AsioInput();
             asioInput.ShowControlPanel();
         }
-
         private void exitToolStripMenuItem_Click(object sender, EventArgs e)
         {
             engine.Stop();
             Application.Exit();
         }
-
-
-
-
-
-
-
         private void GenerateTestData()
         {
             /*          float[] magnitudes = new float[512];
@@ -260,7 +244,6 @@ namespace dfsa.ui
                 }
             }
         }
-
         private void LoadPresetWithDialog()
         {
             using (OpenFileDialog openFileDialog = new OpenFileDialog())
@@ -289,31 +272,113 @@ namespace dfsa.ui
         private void pnlMinimize_Click(object sender, EventArgs e) => this.WindowState = FormWindowState.Minimized;
         private void saveToolStripMenuItem_Click(object sender, EventArgs e) => SavePresetWithDialog();
         private void loadToolStripMenuItem_Click(object sender, EventArgs e) => LoadPresetWithDialog();
-
         private void panel1_Paint(object sender, PaintEventArgs e)
         {
 
         }
-
         private void DistortionNeonPedal_Paint(object sender, PaintEventArgs e)
         {
         }
         Color fade1 = Color.FromArgb(21, 25, 46);
         Color fade2 = Color.FromArgb(21, 23, 31);
+        private bool isDrawing = false;
+
         protected override void OnPaint(PaintEventArgs e)
         {
             base.OnPaint(e);
-            using (LinearGradientBrush brush = new LinearGradientBrush(
-                this.ClientRectangle,
-                fade1,
-                fade2,
-                LinearGradientMode.Vertical))
-            {
-                e.Graphics.FillRectangle(brush, this.ClientRectangle);
-            }
-            MakeControlsTransparent(this);
 
+            Rectangle rect = this.ClientRectangle;
+            if (rect.Width <= 0 || rect.Height <= 0)
+                return;
+
+            if (isDrawing) return;
+
+            try
+            {
+                isDrawing = true;
+
+                using (LinearGradientBrush brush = new LinearGradientBrush(
+                    rect,
+                    fade1,
+                    fade2,
+                    LinearGradientMode.Vertical))
+                {
+                    e.Graphics.FillRectangle(brush, rect);
+                }
+                if (isFrameDrawing)
+                {
+                    using (var pen2 = new Pen(Color.Black, 1))
+                    {
+                        float step = 1f / (rect.Width * 2 + rect.Height * 2);
+                        float currentHue = 0f;
+
+                        Action<int, int, int, int> drawLine = (x1, y1, x2, y2) =>
+                        {
+                            pen2.Color = ColorFromHSV(currentHue, 0.6f, 0.8f);
+                            e.Graphics.DrawLine(pen2, x1, y1, x2, y2);
+                            currentHue = (currentHue + step * 360) % 360;
+                        };
+
+                        // Верхняя сторона
+                        for (int x = 0; x < rect.Width; x++)
+                        {
+                            drawLine(x, 0, x, 2);
+                        }
+
+                        // Правая сторона
+                        for (int y = 0; y < rect.Height; y++)
+                        {
+                            drawLine(rect.Width - 3, y, rect.Width, y);
+                        }
+
+                        // Нижняя сторона
+                        for (int x = rect.Width - 1; x >= 0; x--)
+                        {
+                            drawLine(x, rect.Height - 3, x, rect.Height);
+                        }
+
+                        // Левая сторона
+                        for (int y = rect.Height - 1; y >= 0; y--)
+                        {
+                            drawLine(0, y, 2, y);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("Ошибка при отрисовке: " + ex.Message);
+            }
+            finally
+            {
+                isDrawing = false;
+            }
+            
         }
+
+        Color ColorFromHSV(float hue, float saturation, float value)
+        {
+            int hi = Convert.ToInt32(Math.Floor(hue / 60)) % 6;
+            float f = hue / 60 - (float)Math.Floor(hue / 60);
+
+            value *= 255;
+            int v = Convert.ToInt32(value);
+            int p = Convert.ToInt32(value * (1 - saturation));
+            int q = Convert.ToInt32(value * (1 - f * saturation));
+            int t = Convert.ToInt32(value * (1 - (1 - f) * saturation));
+
+            return hi switch
+            {
+                0 => Color.FromArgb(255, v, t, p),
+                1 => Color.FromArgb(255, q, v, p),
+                2 => Color.FromArgb(255, p, v, t),
+                3 => Color.FromArgb(255, p, q, v),
+                4 => Color.FromArgb(255, t, p, v),
+                _ => Color.FromArgb(255, v, p, q),
+            };
+        }
+
+
         private void MakeControlsTransparent(Control parent)
         {
             foreach (Control control in parent.Controls)
@@ -362,7 +427,6 @@ namespace dfsa.ui
             monoClassicToolStripMenuItem.Checked = false;
             sunsetDriveToolStripMenuItem.Checked = true;
         }
-
         private void frostySynthToolStripMenuItem_Click(object sender, EventArgs e)
         {
             sunsetDriveToolStripMenuItem.Checked = false;
@@ -370,7 +434,6 @@ namespace dfsa.ui
             monoClassicToolStripMenuItem.Checked = false;
             frostySynthToolStripMenuItem.Checked = true;
         }
-
         private void neonNightToolStripMenuItem_Click(object sender, EventArgs e)
         {
             sunsetDriveToolStripMenuItem.Checked = false;
@@ -378,7 +441,6 @@ namespace dfsa.ui
             monoClassicToolStripMenuItem.Checked = false;
             neonNightToolStripMenuItem.Checked = true;
         }
-
         private void monoClassicToolStripMenuItem_Click(object sender, EventArgs e)
         {
             sunsetDriveToolStripMenuItem.Checked = false;
@@ -387,10 +449,30 @@ namespace dfsa.ui
             monoClassicToolStripMenuItem.Checked = true;
             MakeControlsRedrawed(this);
         }
-
         private void panel2_Paint(object sender, PaintEventArgs e)
         {
 
+        }
+
+        private void redrawdebugToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            this.Invalidate();
+        }
+
+        private void disabledToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            enabledToolStripMenuItem.Checked = false;
+            disabledToolStripMenuItem.Checked = true;
+            isFrameDrawing = false;
+            this.Invalidate();
+        }
+
+        private void enabledToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            enabledToolStripMenuItem.Checked = true;
+            disabledToolStripMenuItem.Checked = false;
+            isFrameDrawing = true;
+            this.Invalidate();
         }
     }
 }

@@ -8,17 +8,17 @@ namespace TweakFX.core.effects.delay_reverb
 {
     public class Delay : IAudioEffect
     {
-        private float[] _delayBuffer;  // Буфер для хранения задержанных данных
-        private int _delayTimeInSamples; // Время задержки в сэмплах
-        private int _writeIndex;  // Индекс, куда записываются новые сэмплы
-        private float _feedback;  // Обратная связь для эффекта
-        private float _wetMix;  // Соотношение Wet/Dry (мокрый/сухой сигнал)
-        private float _dryMix;  // Соотношение сухого сигнала
+        private float[] _delayBuffer; 
+        private int _delayTimeInSamples; 
+        private int _writeIndex;  
+        private float _feedback;  
+        private float _wetMix;  
+        private float _dryMix;  
 
         public Delay(int delayTimeInMs = 300, float feedback = 0.5f, float wetMix = 0.5f, float dryMix = 0.5f, int sampleRate = 44100)
         {
             // Инициализация буфера
-            _delayTimeInSamples = (int)(delayTimeInMs * (sampleRate / 1000.0f));  // Преобразование времени задержки в сэмплы
+            _delayTimeInSamples = (int)(delayTimeInMs * (sampleRate / 1000.0f));  
             _delayBuffer = new float[_delayTimeInSamples];
             _writeIndex = 0;
             _feedback = feedback;
@@ -26,11 +26,9 @@ namespace TweakFX.core.effects.delay_reverb
             _dryMix = dryMix;
         }
 
-        // Метод для обновления параметров эффекта
         public void UpdateDelayTime(int delayTimeInMs, int sampleRate = 44100)
         {
-            //MessageBox.Show(delayTimeInMs.ToString());
-            _delayTimeInSamples = Math.Max(1, (int)(delayTimeInMs * (sampleRate / 1000.0f)));  // Защита: минимум 1 сэмпл
+            _delayTimeInSamples = Math.Max(1, (int)(delayTimeInMs * (sampleRate / 1000.0f)));  
             _delayBuffer = new float[_delayTimeInSamples];
             _writeIndex = 0;
         }
@@ -54,18 +52,10 @@ namespace TweakFX.core.effects.delay_reverb
         {
             for (int i = offset; i < offset + count; i++)
             {
-                // Получаем текущий сэмпл
                 float currentSample = buffer[i];
-
-                // Получаем задержанный сэмпл из буфера
                 float delayedSample = _delayBuffer[_writeIndex];
-                // Записываем текущий сэмпл в буфер
                 _delayBuffer[_writeIndex] = currentSample + delayedSample * _feedback;
-
-                // Применяем смешивание мокрого и сухого сигнала
                 buffer[i] = currentSample * _dryMix + delayedSample * _wetMix;
-
-                // Переход к следующему индексу в буфере
                 _writeIndex = (_writeIndex + 1) % _delayTimeInSamples;
             }
         }

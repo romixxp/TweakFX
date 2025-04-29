@@ -183,6 +183,14 @@ namespace dfsa.ui.controls
             }
         }
 
+        public static Color ColorFromHSV_BlackWhite(double hue, double saturation, double value)
+        {
+            double gray = Math.Clamp(hue / 360.0, 0.0, 1.0);
+
+            int v = (int)(gray * 255.0);
+            return Color.FromArgb(255, v, v, v);
+        }
+
         public static Color ColorFromHSV(double hue, double saturation, double value)
         {
             int hi = Convert.ToInt32(Math.Floor(hue / 60)) % 6;

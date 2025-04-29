@@ -4,6 +4,8 @@ using System.Drawing.Drawing2D;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.VisualBasic.Devices;
+using TweakFX.core;
 
 namespace TweakFX.ui.controls.VisualAudio
 {
@@ -24,9 +26,14 @@ namespace TweakFX.ui.controls.VisualAudio
         // Метод для обновления данных в осциллографе
         public void UpdateBuffer(float[] newSamples)
         {
-            
-            Array.Copy(_samples, newSamples.Length, _samples, 0, _samples.Length - newSamples.Length);
-
+            try
+            {
+                Array.Copy(_samples, newSamples.Length, _samples, 0, _samples.Length - newSamples.Length);
+            }
+            catch (Exception ex)
+            {
+                Application.Exit();
+            }
             // Добавляем новые сэмплы в конец массива
             Array.Copy(newSamples, 0, _samples, _samples.Length - newSamples.Length, newSamples.Length);
 

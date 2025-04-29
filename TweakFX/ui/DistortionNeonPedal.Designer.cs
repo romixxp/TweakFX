@@ -46,8 +46,12 @@ namespace dfsa.ui
             sunsetDriveToolStripMenuItem = new ToolStripMenuItem();
             frostySynthToolStripMenuItem = new ToolStripMenuItem();
             monoClassicToolStripMenuItem = new ToolStripMenuItem();
+            redrawdebugToolStripMenuItem = new ToolStripMenuItem();
             pereferencesToolStripMenuItem = new ToolStripMenuItem();
             exitToolStripMenuItem = new ToolStripMenuItem();
+            rGBFrameToolStripMenuItem = new ToolStripMenuItem();
+            enabledToolStripMenuItem = new ToolStripMenuItem();
+            disabledToolStripMenuItem = new ToolStripMenuItem();
             oscilloscope = new TweakFX.ui.controls.VisualAudio.Oscilloscope();
             panelDelay = new Panel();
             label9 = new Label();
@@ -80,13 +84,13 @@ namespace dfsa.ui
             label5 = new Label();
             panelDistortion = new Panel();
             panel3 = new Panel();
+            label17 = new Label();
             label14 = new Label();
+            knobPitchMix = new dfsa.ui.controls.DistortionKnob();
             label15 = new Label();
             label16 = new Label();
             knobWindowSize = new dfsa.ui.controls.DistortionKnob();
             knobShift = new dfsa.ui.controls.DistortionKnob();
-            label17 = new Label();
-            knobPitchMix = new dfsa.ui.controls.DistortionKnob();
             panel1.SuspendLayout();
             contextMenuStrip1.SuspendLayout();
             panelDelay.SuspendLayout();
@@ -103,7 +107,7 @@ namespace dfsa.ui
             panel1.Dock = DockStyle.Top;
             panel1.Location = new Point(0, 0);
             panel1.Name = "panel1";
-            panel1.Size = new Size(1774, 36);
+            panel1.Size = new Size(1765, 36);
             panel1.TabIndex = 0;
             panel1.Paint += panel1_Paint;
             // 
@@ -113,7 +117,7 @@ namespace dfsa.ui
             pnlMinimize.BackgroundImage = (Image)resources.GetObject("pnlMinimize.BackgroundImage");
             pnlMinimize.BackgroundImageLayout = ImageLayout.Center;
             pnlMinimize.Dock = DockStyle.Right;
-            pnlMinimize.Location = new Point(1702, 0);
+            pnlMinimize.Location = new Point(1693, 0);
             pnlMinimize.Name = "pnlMinimize";
             pnlMinimize.Size = new Size(36, 36);
             pnlMinimize.TabIndex = 21;
@@ -129,7 +133,7 @@ namespace dfsa.ui
             pnlClose.BackgroundImage = (Image)resources.GetObject("pnlClose.BackgroundImage");
             pnlClose.BackgroundImageLayout = ImageLayout.Center;
             pnlClose.Dock = DockStyle.Right;
-            pnlClose.Location = new Point(1738, 0);
+            pnlClose.Location = new Point(1729, 0);
             pnlClose.Name = "pnlClose";
             pnlClose.Size = new Size(36, 36);
             pnlClose.TabIndex = 20;
@@ -165,15 +169,15 @@ namespace dfsa.ui
             // contextMenuStrip1
             // 
             contextMenuStrip1.ImageScalingSize = new Size(24, 24);
-            contextMenuStrip1.Items.AddRange(new ToolStripItem[] { presetToolStripMenuItem, styleToolStripMenuItem, pereferencesToolStripMenuItem, exitToolStripMenuItem });
+            contextMenuStrip1.Items.AddRange(new ToolStripItem[] { presetToolStripMenuItem, styleToolStripMenuItem, rGBFrameToolStripMenuItem, redrawdebugToolStripMenuItem, pereferencesToolStripMenuItem, exitToolStripMenuItem });
             contextMenuStrip1.Name = "contextMenuStrip1";
-            contextMenuStrip1.Size = new Size(142, 92);
+            contextMenuStrip1.Size = new Size(159, 136);
             // 
             // presetToolStripMenuItem
             // 
             presetToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { saveToolStripMenuItem, loadToolStripMenuItem });
             presetToolStripMenuItem.Name = "presetToolStripMenuItem";
-            presetToolStripMenuItem.Size = new Size(141, 22);
+            presetToolStripMenuItem.Size = new Size(158, 22);
             presetToolStripMenuItem.Text = "File";
             // 
             // saveToolStripMenuItem
@@ -194,7 +198,7 @@ namespace dfsa.ui
             // 
             styleToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { neonNightToolStripMenuItem, sunsetDriveToolStripMenuItem, frostySynthToolStripMenuItem, monoClassicToolStripMenuItem });
             styleToolStripMenuItem.Name = "styleToolStripMenuItem";
-            styleToolStripMenuItem.Size = new Size(141, 22);
+            styleToolStripMenuItem.Size = new Size(158, 22);
             styleToolStripMenuItem.Text = "Style";
             // 
             // neonNightToolStripMenuItem
@@ -227,19 +231,49 @@ namespace dfsa.ui
             monoClassicToolStripMenuItem.Text = "Mono Classic";
             monoClassicToolStripMenuItem.Click += monoClassicToolStripMenuItem_Click;
             // 
+            // redrawdebugToolStripMenuItem
+            // 
+            redrawdebugToolStripMenuItem.Name = "redrawdebugToolStripMenuItem";
+            redrawdebugToolStripMenuItem.Size = new Size(158, 22);
+            redrawdebugToolStripMenuItem.Text = "Redraw (debug)";
+            redrawdebugToolStripMenuItem.Click += redrawdebugToolStripMenuItem_Click;
+            // 
             // pereferencesToolStripMenuItem
             // 
             pereferencesToolStripMenuItem.Name = "pereferencesToolStripMenuItem";
-            pereferencesToolStripMenuItem.Size = new Size(141, 22);
+            pereferencesToolStripMenuItem.Size = new Size(158, 22);
             pereferencesToolStripMenuItem.Text = "Pereferences";
             pereferencesToolStripMenuItem.Click += preferencesToolStripMenuItem_Click;
             // 
             // exitToolStripMenuItem
             // 
             exitToolStripMenuItem.Name = "exitToolStripMenuItem";
-            exitToolStripMenuItem.Size = new Size(141, 22);
+            exitToolStripMenuItem.Size = new Size(158, 22);
             exitToolStripMenuItem.Text = "Exit";
             exitToolStripMenuItem.Click += exitToolStripMenuItem_Click;
+            // 
+            // rGBFrameToolStripMenuItem
+            // 
+            rGBFrameToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { enabledToolStripMenuItem, disabledToolStripMenuItem });
+            rGBFrameToolStripMenuItem.Name = "rGBFrameToolStripMenuItem";
+            rGBFrameToolStripMenuItem.Size = new Size(158, 22);
+            rGBFrameToolStripMenuItem.Text = "RGB Frame";
+            // 
+            // enabledToolStripMenuItem
+            // 
+            enabledToolStripMenuItem.Checked = true;
+            enabledToolStripMenuItem.CheckState = CheckState.Checked;
+            enabledToolStripMenuItem.Name = "enabledToolStripMenuItem";
+            enabledToolStripMenuItem.Size = new Size(180, 22);
+            enabledToolStripMenuItem.Text = "Enabled";
+            enabledToolStripMenuItem.Click += enabledToolStripMenuItem_Click;
+            // 
+            // disabledToolStripMenuItem
+            // 
+            disabledToolStripMenuItem.Name = "disabledToolStripMenuItem";
+            disabledToolStripMenuItem.Size = new Size(180, 22);
+            disabledToolStripMenuItem.Text = "Disabled";
+            disabledToolStripMenuItem.Click += disabledToolStripMenuItem_Click;
             // 
             // oscilloscope
             // 
@@ -636,6 +670,17 @@ namespace dfsa.ui
             panel3.Size = new Size(334, 256);
             panel3.TabIndex = 13;
             // 
+            // label17
+            // 
+            label17.AutoSize = true;
+            label17.Font = new Font("Segoe UI", 14.25F, FontStyle.Regular, GraphicsUnit.Point, 204);
+            label17.ForeColor = Color.White;
+            label17.Location = new Point(137, 177);
+            label17.Name = "label17";
+            label17.Size = new Size(43, 25);
+            label17.TabIndex = 18;
+            label17.Text = "Mix";
+            // 
             // label14
             // 
             label14.AutoSize = true;
@@ -646,6 +691,19 @@ namespace dfsa.ui
             label14.Size = new Size(121, 25);
             label14.TabIndex = 12;
             label14.Text = "Window Size";
+            // 
+            // knobPitchMix
+            // 
+            knobPitchMix.BackColor = Color.Transparent;
+            knobPitchMix.Fade1 = Color.FromArgb(0, 238, 255);
+            knobPitchMix.Fade2 = Color.FromArgb(0, 255, 51);
+            knobPitchMix.Fade3 = Color.FromArgb(0, 99, 98);
+            knobPitchMix.Location = new Point(119, 111);
+            knobPitchMix.Name = "knobPitchMix";
+            knobPitchMix.Size = new Size(80, 80);
+            knobPitchMix.TabIndex = 19;
+            knobPitchMix.Text = "distortionKnob5";
+            knobPitchMix.Value = 0.5F;
             // 
             // label15
             // 
@@ -695,35 +753,11 @@ namespace dfsa.ui
             knobShift.Text = "distortionKnob3";
             knobShift.Value = 0F;
             // 
-            // label17
-            // 
-            label17.AutoSize = true;
-            label17.Font = new Font("Segoe UI", 14.25F, FontStyle.Regular, GraphicsUnit.Point, 204);
-            label17.ForeColor = Color.White;
-            label17.Location = new Point(137, 177);
-            label17.Name = "label17";
-            label17.Size = new Size(43, 25);
-            label17.TabIndex = 18;
-            label17.Text = "Mix";
-            // 
-            // knobPitchMix
-            // 
-            knobPitchMix.BackColor = Color.Transparent;
-            knobPitchMix.Fade1 = Color.FromArgb(0, 238, 255);
-            knobPitchMix.Fade2 = Color.FromArgb(0, 255, 51);
-            knobPitchMix.Fade3 = Color.FromArgb(0, 99, 98);
-            knobPitchMix.Location = new Point(119, 111);
-            knobPitchMix.Name = "knobPitchMix";
-            knobPitchMix.Size = new Size(80, 80);
-            knobPitchMix.TabIndex = 19;
-            knobPitchMix.Text = "distortionKnob5";
-            knobPitchMix.Value = 0.5F;
-            // 
             // DistortionNeonPedal
             // 
             AutoScaleMode = AutoScaleMode.None;
             BackColor = Color.FromArgb(21, 23, 31);
-            ClientSize = new Size(1774, 381);
+            ClientSize = new Size(1765, 381);
             ContextMenuStrip = contextMenuStrip1;
             Controls.Add(panel3);
             Controls.Add(panel2);
@@ -817,5 +851,9 @@ namespace dfsa.ui
         private controls.DistortionKnob knobShift;
         private Label label17;
         private controls.DistortionKnob knobPitchMix;
+        private ToolStripMenuItem redrawdebugToolStripMenuItem;
+        private ToolStripMenuItem rGBFrameToolStripMenuItem;
+        private ToolStripMenuItem enabledToolStripMenuItem;
+        private ToolStripMenuItem disabledToolStripMenuItem;
     }
 }
