@@ -11,19 +11,18 @@ namespace TweakFX.ui.controls.VisualAudio
 {
     public class Oscilloscope : Control
     {
-        private float[] _samples;  // Массив с данными звука для отображения
-        private int _maxSamples;  // Максимальный размер массива (для предотвращения переполнения)
-        private const float MaxAmplitude = 1.0f; // Максимальная амплитуда для нормализованного сигнала
-        private const int SmoothingWindow = 10;  // Размер окна для сглаживания сигнала
+        private float[] _samples;
+        private int _maxSamples; 
+        private const float MaxAmplitude = 1.0f; 
+        private const int SmoothingWindow = 10;  
 
         public Oscilloscope()
         {
-            _samples = new float[192];  // Начальный размер буфера
-            _maxSamples = 192;          // Максимальное количество данных
-            this.DoubleBuffered = true;  // Включаем двойную буферизацию для улучшения производительности
+            _samples = new float[192]; 
+            _maxSamples = 192;          
+            this.DoubleBuffered = true;
         }
 
-        // Метод для обновления данных в осциллографе
         public void UpdateBuffer(float[] newSamples)
         {
             try
@@ -34,14 +33,13 @@ namespace TweakFX.ui.controls.VisualAudio
             {
                 Application.Exit();
             }
-            // Добавляем новые сэмплы в конец массива
+
             Array.Copy(newSamples, 0, _samples, _samples.Length - newSamples.Length, newSamples.Length);
 
-            // Перерисовываем компонент
             Invalidate();
         }
 
-        // Метод для сглаживания сигнала
+
         private void SmoothSignal()
         {
             for (int i = 0; i < _samples.Length; i++)

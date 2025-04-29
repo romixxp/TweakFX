@@ -30,8 +30,8 @@ namespace TweakFX.core.effects.pitch
 
         public void SetGrainSize(int grainSizeMs)
         {
-            _grainSizeInSamples = Math.Max(32, _sampleRate * grainSizeMs / 1000f); // Минимальный размер зерна 32 сэмпла
-            _overlap = 0.5f; // можно позже сделать адаптивным
+            _grainSizeInSamples = Math.Max(32, _sampleRate * grainSizeMs / 1000f);
+            _overlap = 0.5f;
 
             _inputBufferSize = (int)(_grainSizeInSamples * 4);
             _inputBuffer = new float[_inputBufferSize];
@@ -75,7 +75,6 @@ namespace TweakFX.core.effects.pitch
 
                 if (!_bufferFilled)
                 {
-                    // Ждем, пока заполнится один полный зерновой буфер
                     if (_inputWritePos >= _grainSizeInSamples)
                         _bufferFilled = true;
 
@@ -84,17 +83,10 @@ namespace TweakFX.core.effects.pitch
                 }
 
                 float outputSample = 0f;
-
-                // Read current grain windowed
                 outputSample += ReadGrain(_readHead);
-
-                // Read overlapped grain (half grainSize offset)
                 float overlappedHead = (_readHead + _grainSizeInSamples * _overlap) % _inputBufferSize;
                 outputSample += ReadGrain(overlappedHead);
-
-                outputSample *= 0.5f; // Average overlapped grains
-
-                // Crossfade input and processed output
+                outputSample *= 0.5f;
                 buffer[i] = inputSample * (1f - _mix) + outputSample * _mix;
 
                 _readHead += _pitchShift;
@@ -106,18 +98,15 @@ namespace TweakFX.core.effects.pitch
         {
             int size = (int)_grainSizeInSamples;
 
-            // Круговое чтение
             int basePos = (int)pos % _inputBufferSize;
             int nextPos = (basePos + 1) % _inputBufferSize;
             float frac = pos - (int)pos;
 
-            // Линейная интерполяция для плавности
             float sample = (1f - frac) * _inputBuffer[basePos] + frac * _inputBuffer[nextPos];
 
-            int grainIndex = (int)((pos % size + size) % size); // гарантия вхождения в окно
+            int grainIndex = (int)((pos % size + size) % size); 
             if (grainIndex < 0 || grainIndex >= _window.Length) return 0f;
 
-            // Оконное умножение
             return sample * _window[grainIndex];
         }
     }

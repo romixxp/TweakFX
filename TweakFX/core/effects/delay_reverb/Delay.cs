@@ -17,7 +17,6 @@ namespace TweakFX.core.effects.delay_reverb
 
         public Delay(int delayTimeInMs = 300, float feedback = 0.5f, float wetMix = 0.5f, float dryMix = 0.5f, int sampleRate = 44100)
         {
-            // Инициализация буфера
             _delayTimeInSamples = (int)(delayTimeInMs * (sampleRate / 1000.0f));  
             _delayBuffer = new float[_delayTimeInSamples];
             _writeIndex = 0;
