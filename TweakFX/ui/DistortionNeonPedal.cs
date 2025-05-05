@@ -10,6 +10,8 @@ using TweakFX.ui.controls.unused;
 using dfsa.ui.controls;
 using System.Drawing.Drawing2D;
 using System.Diagnostics;
+using SkiaSharp.Views.Desktop;
+using SkiaSharp;
 
 
 namespace dfsa.ui
@@ -24,12 +26,127 @@ namespace dfsa.ui
         private PresetManager _presetManager;
         private List<DistortionKnob> _distortionKnobs;
         private bool isFrameDrawing = true;
+        private float hueOffset = 0f;
+        private readonly Stopwatch stopwatch = new Stopwatch();
+        private bool animationRunning = false;
+        private readonly SKControl skControl = new SKControl();
         public DistortionNeonPedal()
         {
             InitializeComponent();
             this.FormBorderStyle = FormBorderStyle.None;
             this.DoubleBuffered = true;
+
+            skControl.Dock = DockStyle.Fill;
+            skControl.PaintSurface += SkControl_PaintSurface;
+            skControl.BackColor = Color.Black; // Прозрачность не работает — оставим фон, который не мешает
+            this.Controls.Add(skControl);
+            //skControl.BringToFront(); // Поверх всех контролов
         }
+
+        protected override void OnHandleCreated(EventArgs e)
+        {
+            base.OnHandleCreated(e);
+
+            stopwatch.Start();
+            StartFrameAnimation();
+
+        }
+        private void SkControl_PaintSurface(object sender, SKPaintSurfaceEventArgs e)
+        {
+            //MakeControlsTransparent(this);
+            var canvas = e.Surface.Canvas;
+            canvas.Clear(SKColors.Transparent);
+
+            int width = e.Info.Width;
+            int height = e.Info.Height;
+            int thickness = 3;
+
+            float time = (float)(stopwatch.ElapsedMilliseconds % 10000) / 10000f;
+            float hueShift = (time * 360f) % 360f;
+
+            // === Градиентный фон ===
+            using (var bgPaint = new SKPaint())
+            {
+                var gradientColors = new[]
+                {
+            SKColor.FromHsv((hueShift + 0) % 360, 80, 15),
+            SKColor.FromHsv((hueShift + 60) % 360, 80, 10)
+        };
+                var shader = SKShader.CreateLinearGradient(
+                    new SKPoint(0, 0),
+                    new SKPoint(width, height),
+                    gradientColors,
+                    null,
+                    SKShaderTileMode.Clamp
+                );
+                bgPaint.Shader = shader;
+                canvas.DrawRect(new SKRect(0, 0, width, height), bgPaint);
+            }
+
+            // === Рамка с переходом цвета ===
+            using (var paint = new SKPaint
+            {
+                Style = SKPaintStyle.Stroke,
+                StrokeWidth = thickness,
+                IsAntialias = true
+            })
+            {
+                // Границы
+                var points = new[]
+                {
+            new SKPoint(thickness, thickness),
+            new SKPoint(width - thickness, thickness),           // top
+            new SKPoint(width - thickness, height - thickness),  // right
+            new SKPoint(thickness, height - thickness),          // bottom
+            new SKPoint(thickness, thickness)                    // left
+        };
+
+                for (int i = 0; i < 4; i++)
+                {
+                    float hueStart = (hueShift + i * 90f) % 360;
+                    float hueEnd = (hueShift + (i + 1) * 90f) % 360;
+
+                    var shader = SKShader.CreateLinearGradient(
+                        points[i],
+                        points[i + 1],
+                        new[]
+                        {
+                    SKColor.FromHsv(hueStart, 100, 100),
+                    SKColor.FromHsv(hueEnd, 100, 100)
+                        },
+                        null,
+                        SKShaderTileMode.Clamp
+                    );
+
+                    paint.Shader = shader;
+                    canvas.DrawLine(points[i], points[i + 1], paint);
+                }
+            }
+        }
+
+
+        private SKColor SKColorFromHSV(double hue, double saturation, double value)
+        {
+            int hi = Convert.ToInt32(Math.Floor(hue / 60)) % 6;
+            double f = hue / 60 - Math.Floor(hue / 60);
+
+            value = value * 255;
+            int v = Convert.ToInt32(value);
+            int p = Convert.ToInt32(value * (1 - saturation));
+            int q = Convert.ToInt32(value * (1 - f * saturation));
+            int t = Convert.ToInt32(value * (1 - (1 - f) * saturation));
+
+            return hi switch
+            {
+                0 => new SKColor((byte)v, (byte)t, (byte)p),
+                1 => new SKColor((byte)q, (byte)v, (byte)p),
+                2 => new SKColor((byte)p, (byte)v, (byte)t),
+                3 => new SKColor((byte)p, (byte)q, (byte)v),
+                4 => new SKColor((byte)t, (byte)p, (byte)v),
+                _ => new SKColor((byte)v, (byte)p, (byte)q),
+            };
+        }
+
         private void topPanel_MouseDown(object sender, MouseEventArgs e)
         {
             if (e.Button == MouseButtons.Left)
@@ -282,86 +399,71 @@ namespace dfsa.ui
         Color fade1 = Color.FromArgb(21, 25, 46);
         Color fade2 = Color.FromArgb(21, 23, 31);
         private bool isDrawing = false;
-
-        protected override void OnPaint(PaintEventArgs e)
+        private async void StartFrameAnimation()
         {
-            base.OnPaint(e);
+            if (animationRunning) return;
+            animationRunning = true;
 
-            Rectangle rect = this.ClientRectangle;
-            if (rect.Width <= 0 || rect.Height <= 0)
-                return;
-
-            if (isDrawing) return;
-
-            try
+            while (!this.IsDisposed)
             {
-                isDrawing = true;
-
-                using (LinearGradientBrush brush = new LinearGradientBrush(
-                    rect,
-                    fade1,
-                    fade2,
-                    LinearGradientMode.Vertical))
-                {
-                    e.Graphics.FillRectangle(brush, rect);
-                }
-                if (isFrameDrawing)
-                {
-                    using (var pen2 = new Pen(Color.Black, 1))
-                    {
-                        float step = 1f / (rect.Width * 2 + rect.Height * 2);
-                        float currentHue = 0f;
-
-                        Action<int, int, int, int> drawLine = (x1, y1, x2, y2) =>
-                        {
-                            pen2.Color = ColorFromHSV(currentHue, 0.6f, 0.8f);
-                            e.Graphics.DrawLine(pen2, x1, y1, x2, y2);
-                            currentHue = (currentHue + step * 360) % 360;
-                        };
-
-                        // Верхняя сторона
-                        for (int x = 0; x < rect.Width; x++)
-                        {
-                            drawLine(x, 0, x, 2);
-                        }
-
-                        // Правая сторона
-                        for (int y = 0; y < rect.Height; y++)
-                        {
-                            drawLine(rect.Width - 3, y, rect.Width, y);
-                        }
-
-                        // Нижняя сторона
-                        for (int x = rect.Width - 1; x >= 0; x--)
-                        {
-                            drawLine(x, rect.Height - 3, x, rect.Height);
-                        }
-
-                        // Левая сторона
-                        for (int y = rect.Height - 1; y >= 0; y--)
-                        {
-                            drawLine(0, y, 2, y);
-                        }
-                    }
-                }
+                skControl.Invalidate(); // Обновляем Skia рамку
+                await Task.Delay(16); // ~60 FPS
             }
-            catch (Exception ex)
-            {
-                Debug.WriteLine("Ошибка при отрисовке: " + ex.Message);
-            }
-            finally
-            {
-                isDrawing = false;
-            }
-            
         }
 
-        Color ColorFromHSV(float hue, float saturation, float value)
+        private void DrawRainbowFrame()
+        {
+            try
+            {
+                using (Graphics g = this.CreateGraphics())
+                using (Pen pen = new Pen(Color.Black, 1))
+                {
+                    Rectangle rect = this.ClientRectangle;
+
+                    float step = 1f / (rect.Width * 2 + rect.Height * 2);
+                    float timeElapsed = (float)stopwatch.ElapsedMilliseconds / 1000f;
+                    float hue = (timeElapsed * 50f) % 360f;
+
+                    float currentHue = hue;
+
+                    Action<int, int, int, int> drawLine = (x1, y1, x2, y2) =>
+                    {
+                        pen.Color = ColorFromHSV(currentHue, 0.6f, 0.8f);
+                        g.DrawLine(pen, x1, y1, x2, y2);
+                        currentHue = (currentHue + step * 360) % 360;
+                    };
+
+                    // Верх
+                    for (int x = 0; x < rect.Width; x++)
+                        drawLine(x, 0, x, 2);
+
+                    // Право
+                    for (int y = 0; y < rect.Height; y++)
+                        drawLine(rect.Width - 3, y, rect.Width, y);
+
+                    // Низ
+                    for (int x = rect.Width - 1; x >= 0; x--)
+                        drawLine(x, rect.Height - 3, x, rect.Height);
+
+                    // Лево
+                    for (int y = rect.Height - 1; y >= 0; y--)
+                        drawLine(0, y, 2, y);
+                }
+            }
+            catch
+            {
+                // Игнорировать ошибки при отрисовке во время сворачивания и т.п.
+            }
+        }
+
+
+
+        public static Color ColorFromHSV(double hue, double saturation, double value)
         {
             int hi = Convert.ToInt32(Math.Floor(hue / 60)) % 6;
-            float f = hue / 60 - (float)Math.Floor(hue / 60);
+            double f = hue / 60 - Math.Floor(hue / 60);
 
-            value *= 255;
+            value = value * 255;
             int v = Convert.ToInt32(value);
             int p = Convert.ToInt32(value * (1 - saturation));
             int q = Convert.ToInt32(value * (1 - f * saturation));
@@ -369,16 +471,16 @@ namespace dfsa.ui
 
             return hi switch
             {
-                0 => Color.FromArgb(255, v, t, p),
-                1 => Color.FromArgb(255, q, v, p),
-                2 => Color.FromArgb(255, p, v, t),
-                3 => Color.FromArgb(255, p, q, v),
-                4 => Color.FromArgb(255, t, p, v),
-                _ => Color.FromArgb(255, v, p, q),
+                0 => Color.FromArgb(v, t, p),
+                1 => Color.FromArgb(q, v, p),
+                2 => Color.FromArgb(p, v, t),
+                3 => Color.FromArgb(p, q, v),
+                4 => Color.FromArgb(t, p, v),
+                _ => Color.FromArgb(v, p, q),
             };
         }
 
-
+        
         private void MakeControlsTransparent(Control parent)
         {
             foreach (Control control in parent.Controls)
@@ -391,6 +493,7 @@ namespace dfsa.ui
                 {
                     MakeControlsTransparent(control);
                 }
+                Debug.WriteLine("Transparented: " + control.Name);
             }
         }
         private void MakeControlsRedrawed(Control parent)

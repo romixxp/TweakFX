@@ -25,7 +25,9 @@ namespace dfsa.ui.controls
             this.BackColor = Color.Transparent;
             this.DoubleBuffered = true;
             this.Size = new Size(100, 100);
-
+            this.SetStyle(ControlStyles.SupportsTransparentBackColor, true);
+            this.SetStyle(ControlStyles.OptimizedDoubleBuffer, true);
+            this.BackColor = Color.Transparent;
             MouseDown += Knob_MouseDown;
             MouseMove += Knob_MouseMove;
             MouseUp += Knob_MouseUp;
@@ -69,7 +71,7 @@ namespace dfsa.ui.controls
         {
             //base.OnPaint(e);
             Graphics g = e.Graphics;
-            g.SmoothingMode = SmoothingMode.AntiAlias;
+            g.SmoothingMode = SmoothingMode.HighQuality;
             int w = Width, h = Height;
             Rectangle rect = new(20, 20, w - 40, h - 40);
             //Rectangle el = new Rectangle(0, 0, 300, 300);

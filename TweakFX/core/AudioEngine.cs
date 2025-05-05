@@ -7,10 +7,11 @@ using TweakFX.ui.controls;
 using dfsa.ui;
 using TweakFX.core.effects.delay_reverb;
 using System.Reflection.Metadata.Ecma335;
-using TweakFX.core.effects.delay_reverb;
 using TweakFX.core.mics;
 using System.Threading.Tasks;
 using TweakFX.core.effects.pitch;
+using TweakFX.core.effects.spatial;
+using TweakFX.core.effects.dynamics;
 
 namespace TweakFX.core
 {
@@ -43,6 +44,8 @@ namespace TweakFX.core
         Delay delay = new core.effects.delay_reverb.Delay(250);
         Reverb reverb = new core.effects.delay_reverb.Reverb(decayMs: 1500, preDelayMs: 0);
         PitchShifter pitchShifter = new PitchShifter(1f, 50, 44100); // Параметры по умолчанию: 1.0f, 50 мс, 44100 Гц
+        Spatializer spatializer = new(0f);
+        NoiseReducer noiseReducer = new NoiseReducer(); 
 
         #region Updaters
 
@@ -79,12 +82,17 @@ namespace TweakFX.core
 
         #endregion
 
+        #region Spatializer
+
+        public void UpdAzimuth(float azimuth) => spatializer.SetAzimuth(azimuth);
+
+        #endregion
+
         public float SetInVol(float vol) { return volume = vol * 2f; }
         public float SetOutVol(float vol) { return involume = vol * 2f; }
         public float SetMix(float mix) { return this.mix = mix; }
 
         #endregion
-
 
         SquareWaveGenerator generator = new SquareWaveGenerator(44100, 2000, durationSeconds: 2);
         public async Task Start()
@@ -95,6 +103,8 @@ namespace TweakFX.core
             _effectChain.AddEffect(delay);
             _effectChain.AddEffect(reverb);
             _effectChain.AddEffect(pitchShifter);
+            _effectChain.AddEffect(spatializer);
+            _effectChain.AddEffect(noiseReducer);
             /*float[] _buffer = { 0 };
             for (int i = 0; i < 5; i++)
            

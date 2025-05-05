@@ -46,12 +46,12 @@ namespace dfsa.ui
             sunsetDriveToolStripMenuItem = new ToolStripMenuItem();
             frostySynthToolStripMenuItem = new ToolStripMenuItem();
             monoClassicToolStripMenuItem = new ToolStripMenuItem();
-            redrawdebugToolStripMenuItem = new ToolStripMenuItem();
-            pereferencesToolStripMenuItem = new ToolStripMenuItem();
-            exitToolStripMenuItem = new ToolStripMenuItem();
             rGBFrameToolStripMenuItem = new ToolStripMenuItem();
             enabledToolStripMenuItem = new ToolStripMenuItem();
             disabledToolStripMenuItem = new ToolStripMenuItem();
+            redrawdebugToolStripMenuItem = new ToolStripMenuItem();
+            pereferencesToolStripMenuItem = new ToolStripMenuItem();
+            exitToolStripMenuItem = new ToolStripMenuItem();
             oscilloscope = new TweakFX.ui.controls.VisualAudio.Oscilloscope();
             panelDelay = new Panel();
             label9 = new Label();
@@ -91,12 +91,16 @@ namespace dfsa.ui
             label16 = new Label();
             knobWindowSize = new dfsa.ui.controls.DistortionKnob();
             knobShift = new dfsa.ui.controls.DistortionKnob();
+            panel4 = new Panel();
+            panel5 = new Panel();
             panel1.SuspendLayout();
             contextMenuStrip1.SuspendLayout();
             panelDelay.SuspendLayout();
             panel2.SuspendLayout();
             panelDistortion.SuspendLayout();
             panel3.SuspendLayout();
+            panel4.SuspendLayout();
+            panel5.SuspendLayout();
             SuspendLayout();
             // 
             // panel1
@@ -107,7 +111,7 @@ namespace dfsa.ui
             panel1.Dock = DockStyle.Top;
             panel1.Location = new Point(0, 0);
             panel1.Name = "panel1";
-            panel1.Size = new Size(1765, 36);
+            panel1.Size = new Size(1771, 36);
             panel1.TabIndex = 0;
             panel1.Paint += panel1_Paint;
             // 
@@ -117,7 +121,7 @@ namespace dfsa.ui
             pnlMinimize.BackgroundImage = (Image)resources.GetObject("pnlMinimize.BackgroundImage");
             pnlMinimize.BackgroundImageLayout = ImageLayout.Center;
             pnlMinimize.Dock = DockStyle.Right;
-            pnlMinimize.Location = new Point(1693, 0);
+            pnlMinimize.Location = new Point(1699, 0);
             pnlMinimize.Name = "pnlMinimize";
             pnlMinimize.Size = new Size(36, 36);
             pnlMinimize.TabIndex = 21;
@@ -133,7 +137,7 @@ namespace dfsa.ui
             pnlClose.BackgroundImage = (Image)resources.GetObject("pnlClose.BackgroundImage");
             pnlClose.BackgroundImageLayout = ImageLayout.Center;
             pnlClose.Dock = DockStyle.Right;
-            pnlClose.Location = new Point(1729, 0);
+            pnlClose.Location = new Point(1735, 0);
             pnlClose.Name = "pnlClose";
             pnlClose.Size = new Size(36, 36);
             pnlClose.TabIndex = 20;
@@ -149,7 +153,7 @@ namespace dfsa.ui
             lbLeaf.AutoSize = true;
             lbLeaf.Font = new Font("Wasted", 36F, FontStyle.Bold, GraphicsUnit.Point, 0);
             lbLeaf.ForeColor = Color.White;
-            lbLeaf.Location = new Point(12, 48);
+            lbLeaf.Location = new Point(3, 4);
             lbLeaf.Name = "lbLeaf";
             lbLeaf.Size = new Size(126, 58);
             lbLeaf.TabIndex = 5;
@@ -160,7 +164,7 @@ namespace dfsa.ui
             label4.AutoSize = true;
             label4.Font = new Font("Segoe UI", 14.25F, FontStyle.Regular, GraphicsUnit.Point, 204);
             label4.ForeColor = Color.White;
-            label4.Location = new Point(1374, 340);
+            label4.Location = new Point(18, 227);
             label4.Name = "label4";
             label4.Size = new Size(125, 25);
             label4.TabIndex = 9;
@@ -231,6 +235,29 @@ namespace dfsa.ui
             monoClassicToolStripMenuItem.Text = "Mono Classic";
             monoClassicToolStripMenuItem.Click += monoClassicToolStripMenuItem_Click;
             // 
+            // rGBFrameToolStripMenuItem
+            // 
+            rGBFrameToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { enabledToolStripMenuItem, disabledToolStripMenuItem });
+            rGBFrameToolStripMenuItem.Name = "rGBFrameToolStripMenuItem";
+            rGBFrameToolStripMenuItem.Size = new Size(158, 22);
+            rGBFrameToolStripMenuItem.Text = "RGB Frame";
+            // 
+            // enabledToolStripMenuItem
+            // 
+            enabledToolStripMenuItem.Checked = true;
+            enabledToolStripMenuItem.CheckState = CheckState.Checked;
+            enabledToolStripMenuItem.Name = "enabledToolStripMenuItem";
+            enabledToolStripMenuItem.Size = new Size(119, 22);
+            enabledToolStripMenuItem.Text = "Enabled";
+            enabledToolStripMenuItem.Click += enabledToolStripMenuItem_Click;
+            // 
+            // disabledToolStripMenuItem
+            // 
+            disabledToolStripMenuItem.Name = "disabledToolStripMenuItem";
+            disabledToolStripMenuItem.Size = new Size(119, 22);
+            disabledToolStripMenuItem.Text = "Disabled";
+            disabledToolStripMenuItem.Click += disabledToolStripMenuItem_Click;
+            // 
             // redrawdebugToolStripMenuItem
             // 
             redrawdebugToolStripMenuItem.Name = "redrawdebugToolStripMenuItem";
@@ -252,35 +279,12 @@ namespace dfsa.ui
             exitToolStripMenuItem.Text = "Exit";
             exitToolStripMenuItem.Click += exitToolStripMenuItem_Click;
             // 
-            // rGBFrameToolStripMenuItem
-            // 
-            rGBFrameToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { enabledToolStripMenuItem, disabledToolStripMenuItem });
-            rGBFrameToolStripMenuItem.Name = "rGBFrameToolStripMenuItem";
-            rGBFrameToolStripMenuItem.Size = new Size(158, 22);
-            rGBFrameToolStripMenuItem.Text = "RGB Frame";
-            // 
-            // enabledToolStripMenuItem
-            // 
-            enabledToolStripMenuItem.Checked = true;
-            enabledToolStripMenuItem.CheckState = CheckState.Checked;
-            enabledToolStripMenuItem.Name = "enabledToolStripMenuItem";
-            enabledToolStripMenuItem.Size = new Size(180, 22);
-            enabledToolStripMenuItem.Text = "Enabled";
-            enabledToolStripMenuItem.Click += enabledToolStripMenuItem_Click;
-            // 
-            // disabledToolStripMenuItem
-            // 
-            disabledToolStripMenuItem.Name = "disabledToolStripMenuItem";
-            disabledToolStripMenuItem.Size = new Size(180, 22);
-            disabledToolStripMenuItem.Text = "Disabled";
-            disabledToolStripMenuItem.Click += disabledToolStripMenuItem_Click;
-            // 
             // oscilloscope
             // 
             oscilloscope.BackColor = Color.Gray;
-            oscilloscope.Location = new Point(1374, 109);
+            oscilloscope.Location = new Point(3, 3);
             oscilloscope.Name = "oscilloscope";
-            oscilloscope.Size = new Size(385, 109);
+            oscilloscope.Size = new Size(387, 105);
             oscilloscope.TabIndex = 10;
             oscilloscope.Text = "oscilloscope1";
             // 
@@ -295,7 +299,7 @@ namespace dfsa.ui
             panelDelay.Controls.Add(knobFeedback);
             panelDelay.Controls.Add(knobDelay);
             panelDelay.Controls.Add(knobDelayMix);
-            panelDelay.Location = new Point(293, 109);
+            panelDelay.Location = new Point(288, 110);
             panelDelay.Name = "panelDelay";
             panelDelay.Size = new Size(322, 256);
             panelDelay.TabIndex = 13;
@@ -389,7 +393,7 @@ namespace dfsa.ui
             knobIn.Fade1 = Color.FromArgb(0, 238, 255);
             knobIn.Fade2 = Color.FromArgb(0, 255, 51);
             knobIn.Fade3 = Color.FromArgb(0, 99, 98);
-            knobIn.Location = new Point(1383, 227);
+            knobIn.Location = new Point(26, 114);
             knobIn.Name = "knobIn";
             knobIn.Size = new Size(110, 110);
             knobIn.TabIndex = 14;
@@ -402,7 +406,7 @@ namespace dfsa.ui
             knobOut.Fade1 = Color.FromArgb(0, 238, 255);
             knobOut.Fade2 = Color.FromArgb(0, 255, 51);
             knobOut.Fade3 = Color.FromArgb(0, 99, 98);
-            knobOut.Location = new Point(1635, 227);
+            knobOut.Location = new Point(266, 114);
             knobOut.Name = "knobOut";
             knobOut.Size = new Size(110, 110);
             knobOut.TabIndex = 16;
@@ -414,7 +418,7 @@ namespace dfsa.ui
             label10.AutoSize = true;
             label10.Font = new Font("Segoe UI", 14.25F, FontStyle.Regular, GraphicsUnit.Point, 204);
             label10.ForeColor = Color.White;
-            label10.Location = new Point(1619, 340);
+            label10.Location = new Point(250, 227);
             label10.Name = "label10";
             label10.Size = new Size(140, 25);
             label10.TabIndex = 15;
@@ -425,7 +429,7 @@ namespace dfsa.ui
             lbTweakFX.AutoSize = true;
             lbTweakFX.Font = new Font("Wasted", 36F, FontStyle.Bold);
             lbTweakFX.ForeColor = Color.White;
-            lbTweakFX.Location = new Point(1531, 39);
+            lbTweakFX.Location = new Point(1532, 4);
             lbTweakFX.Name = "lbTweakFX";
             lbTweakFX.Size = new Size(227, 58);
             lbTweakFX.TabIndex = 17;
@@ -437,7 +441,7 @@ namespace dfsa.ui
             knobAVMix.Fade1 = Color.FromArgb(0, 238, 255);
             knobAVMix.Fade2 = Color.FromArgb(0, 255, 51);
             knobAVMix.Fade3 = Color.FromArgb(0, 99, 98);
-            knobAVMix.Location = new Point(1509, 227);
+            knobAVMix.Location = new Point(142, 114);
             knobAVMix.Name = "knobAVMix";
             knobAVMix.Size = new Size(110, 110);
             knobAVMix.TabIndex = 19;
@@ -449,7 +453,7 @@ namespace dfsa.ui
             label12.AutoSize = true;
             label12.Font = new Font("Segoe UI", 14.25F, FontStyle.Regular, GraphicsUnit.Point, 204);
             label12.ForeColor = Color.White;
-            label12.Location = new Point(1516, 340);
+            label12.Location = new Point(149, 227);
             label12.Name = "label12";
             label12.Size = new Size(95, 25);
             label12.TabIndex = 18;
@@ -481,7 +485,7 @@ namespace dfsa.ui
             panel2.Controls.Add(label11);
             panel2.Controls.Add(knobPreDelay);
             panel2.Controls.Add(knobReverbMix);
-            panel2.Location = new Point(621, 109);
+            panel2.Location = new Point(616, 110);
             panel2.Name = "panel2";
             panel2.Size = new Size(407, 256);
             panel2.TabIndex = 15;
@@ -649,7 +653,7 @@ namespace dfsa.ui
             panelDistortion.Controls.Add(lbDistortion);
             panelDistortion.Controls.Add(knobThres);
             panelDistortion.Controls.Add(knobDist);
-            panelDistortion.Location = new Point(12, 109);
+            panelDistortion.Location = new Point(7, 110);
             panelDistortion.Name = "panelDistortion";
             panelDistortion.Size = new Size(275, 256);
             panelDistortion.TabIndex = 11;
@@ -665,7 +669,7 @@ namespace dfsa.ui
             panel3.Controls.Add(label16);
             panel3.Controls.Add(knobWindowSize);
             panel3.Controls.Add(knobShift);
-            panel3.Location = new Point(1034, 109);
+            panel3.Location = new Point(1028, 110);
             panel3.Name = "panel3";
             panel3.Size = new Size(334, 256);
             panel3.TabIndex = 13;
@@ -753,26 +757,46 @@ namespace dfsa.ui
             knobShift.Text = "distortionKnob3";
             knobShift.Value = 0F;
             // 
+            // panel4
+            // 
+            panel4.BackColor = Color.FromArgb(25, 30, 40);
+            panel4.BorderStyle = BorderStyle.FixedSingle;
+            panel4.Controls.Add(oscilloscope);
+            panel4.Controls.Add(knobOut);
+            panel4.Controls.Add(label10);
+            panel4.Controls.Add(knobAVMix);
+            panel4.Controls.Add(knobIn);
+            panel4.Controls.Add(label12);
+            panel4.Controls.Add(label4);
+            panel4.Location = new Point(1368, 110);
+            panel4.Name = "panel4";
+            panel4.Size = new Size(395, 256);
+            panel4.TabIndex = 20;
+            // 
+            // panel5
+            // 
+            panel5.BackColor = Color.FromArgb(25, 30, 40);
+            panel5.BorderStyle = BorderStyle.FixedSingle;
+            panel5.Controls.Add(lbTweakFX);
+            panel5.Controls.Add(lbLeaf);
+            panel5.Location = new Point(7, 40);
+            panel5.Name = "panel5";
+            panel5.Size = new Size(1756, 64);
+            panel5.TabIndex = 15;
+            // 
             // DistortionNeonPedal
             // 
             AutoScaleMode = AutoScaleMode.None;
             BackColor = Color.FromArgb(21, 23, 31);
-            ClientSize = new Size(1765, 381);
+            ClientSize = new Size(1771, 374);
             ContextMenuStrip = contextMenuStrip1;
             Controls.Add(panel3);
             Controls.Add(panel2);
-            Controls.Add(knobAVMix);
-            Controls.Add(label12);
-            Controls.Add(lbTweakFX);
-            Controls.Add(knobOut);
-            Controls.Add(label10);
-            Controls.Add(knobIn);
             Controls.Add(panelDelay);
             Controls.Add(panelDistortion);
-            Controls.Add(oscilloscope);
-            Controls.Add(label4);
-            Controls.Add(lbLeaf);
             Controls.Add(panel1);
+            Controls.Add(panel4);
+            Controls.Add(panel5);
             FormBorderStyle = FormBorderStyle.None;
             Name = "DistortionNeonPedal";
             Text = "DistortionNeonPedal";
@@ -789,8 +813,11 @@ namespace dfsa.ui
             panelDistortion.PerformLayout();
             panel3.ResumeLayout(false);
             panel3.PerformLayout();
+            panel4.ResumeLayout(false);
+            panel4.PerformLayout();
+            panel5.ResumeLayout(false);
+            panel5.PerformLayout();
             ResumeLayout(false);
-            PerformLayout();
         }
 
         #endregion
@@ -855,5 +882,7 @@ namespace dfsa.ui
         private ToolStripMenuItem rGBFrameToolStripMenuItem;
         private ToolStripMenuItem enabledToolStripMenuItem;
         private ToolStripMenuItem disabledToolStripMenuItem;
+        private Panel panel4;
+        private Panel panel5;
     }
 }

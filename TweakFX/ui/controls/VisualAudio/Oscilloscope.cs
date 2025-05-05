@@ -14,13 +14,14 @@ namespace TweakFX.ui.controls.VisualAudio
         private float[] _samples;
         private int _maxSamples; 
         private const float MaxAmplitude = 1.0f; 
-        private const int SmoothingWindow = 10;  
+        private const int SmoothingWindow = 10;
 
         public Oscilloscope()
         {
             _samples = new float[192]; 
             _maxSamples = 192;          
             this.DoubleBuffered = true;
+
         }
 
         public void UpdateBuffer(float[] newSamples)
