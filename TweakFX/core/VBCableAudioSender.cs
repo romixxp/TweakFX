@@ -67,9 +67,13 @@ public class VBCableAudioSender : IDisposable
     {
         if (!audioQueue.IsAddingCompleted)
         {
+            //for (int i = 0; i < buffer.Length; i++)
+            //    buffer[i] = (byte)(buffer[i] * volume);
             audioQueue.Add(buffer);
         }
     }
+
+    
 
     private void ProcessQueue(CancellationToken token)
     {

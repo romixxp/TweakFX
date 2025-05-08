@@ -27,6 +27,7 @@ namespace TweakFX.core
         private float mix = 0.5f;
         private float processFraction = 1.0f;
         private VBCableAudioSender sender = new VBCableAudioSender();
+        private float WASAPIlevel = 1f;
 
         public AudioEngine(AsioConfig config)
         {
@@ -90,6 +91,8 @@ namespace TweakFX.core
 
         public float SetInVol(float vol) { return volume = vol * 2f; }
         public float SetOutVol(float vol) { return involume = vol * 2f; }
+        public float SetASIOOutputLevel(float level) { return _asioOutput.SetVolume(level); }
+        public float SetWASAPIOutputLevel(float level) { return WASAPIlevel = level; }
         public float SetMix(float mix) { return this.mix = mix; }
 
         #endregion
@@ -104,7 +107,7 @@ namespace TweakFX.core
             _effectChain.AddEffect(reverb);
             _effectChain.AddEffect(pitchShifter);
             _effectChain.AddEffect(spatializer);
-            _effectChain.AddEffect(noiseReducer);
+            //_effectChain.AddEffect(noiseReducer);
             /*float[] _buffer = { 0 };
             for (int i = 0; i < 5; i++)
            
@@ -114,8 +117,8 @@ namespace TweakFX.core
             }*/
             _asioInput.AudioAvailable += (s, buffer) =>
             {
-                for (int i = 0; i < buffer.Length; i++)
-                    buffer[i] *= involume;
+                //for (int i = 0; i < buffer.Length; i++)
+                //    buffer[i] *= involume;
                 float[] dryBuffer = buffer.ToArray();
 
                 int processedSamples = (int)(buffer.Length * processFraction); // processFraction от 0.0 до 1.0
@@ -132,11 +135,13 @@ namespace TweakFX.core
                 {
                     buffer[i] = dryBuffer[i] * (1f - mix) + buffer[i] * mix;
                 }
-                for (int i = 0; i < buffer.Length; i++)
-                    buffer[i] *= volume;
+                //for (int i = 0; i < buffer.Length; i++)
+                //    buffer[i] *= volume;
 
                 var stereoBuffer = MonoToStereo(buffer);
                 _asioOutput.Write(stereoBuffer);
+                for (int i = 0; i < stereoBuffer.Length; i++)
+                    stereoBuffer[i] *= WASAPIlevel;
                 sender.SendBuffer(FloatToPcm16Bytes(stereoBuffer));
 
                 lock (_bufferLock)

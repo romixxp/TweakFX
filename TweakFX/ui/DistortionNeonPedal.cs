@@ -12,6 +12,7 @@ using System.Drawing.Drawing2D;
 using System.Diagnostics;
 using SkiaSharp.Views.Desktop;
 using SkiaSharp;
+using TweakFX.core.client_pereferences;
 
 
 namespace dfsa.ui
@@ -201,11 +202,11 @@ namespace dfsa.ui
 
 
             //Other
-            knobOut.Value = 1 / 4f;
-            knobIn.Value = 1 / 4f;
+            knobVROU.Value = 1f;
+            knobASOU.Value = 0f;
             knobAVMix.Value = 1f;
-            engine.SetOutVol(knobOut.Value * 2);
-            engine.SetInVol(knobIn.Value * 2);
+            engine.SetASIOOutputLevel(knobVROU.Value);
+            engine.SetWASAPIOutputLevel(knobASOU.Value);
             engine.SetMix(knobAVMix.Value);
         }
         private void DistortionNeonPedal_Load(object sender, EventArgs e)
@@ -258,11 +259,11 @@ namespace dfsa.ui
 
             #endregion
 
-            knobIn.ValueChanged += (s, e) => engine.SetInVol(knobIn.Value * 2);
-            knobOut.ValueChanged += (s, e) =>
+            knobASOU.ValueChanged += (s, e) => engine.SetASIOOutputLevel(knobASOU.Value);
+            knobVROU.ValueChanged += (s, e) =>
             {
-                engine.SetOutVol(knobOut.Value * 2);
-                engine.UpdWetMix(knobDelayMix.Value * knobOut.Value);
+                engine.SetWASAPIOutputLevel(knobVROU.Value);
+                engine.UpdWetMix(knobDelayMix.Value * knobVROU.Value);
             };
             knobAVMix.ValueChanged += (s, e) => engine.SetMix(knobAVMix.Value);
 
@@ -323,6 +324,8 @@ namespace dfsa.ui
                 engine.Restart(driverName, sampleRate, bufferSize);
             }*/
             AsioInput asioInput = new AsioInput();
+            //Pereferences_Form perForm = new();
+            //perForm.Show();
             asioInput.ShowControlPanel();
         }
         private void exitToolStripMenuItem_Click(object sender, EventArgs e)
@@ -342,10 +345,6 @@ namespace dfsa.ui
 
         }
 
-        private void pnlClose_Paint(object sender, PaintEventArgs e)
-        {
-
-        }
         private void SavePresetWithDialog()
         {
             using (SaveFileDialog saveFileDialog = new SaveFileDialog())
@@ -389,13 +388,6 @@ namespace dfsa.ui
         private void pnlMinimize_Click(object sender, EventArgs e) => this.WindowState = FormWindowState.Minimized;
         private void saveToolStripMenuItem_Click(object sender, EventArgs e) => SavePresetWithDialog();
         private void loadToolStripMenuItem_Click(object sender, EventArgs e) => LoadPresetWithDialog();
-        private void panel1_Paint(object sender, PaintEventArgs e)
-        {
-
-        }
-        private void DistortionNeonPedal_Paint(object sender, PaintEventArgs e)
-        {
-        }
         Color fade1 = Color.FromArgb(21, 25, 46);
         Color fade2 = Color.FromArgb(21, 23, 31);
         private bool isDrawing = false;
@@ -480,7 +472,7 @@ namespace dfsa.ui
             };
         }
 
-        
+
         private void MakeControlsTransparent(Control parent)
         {
             foreach (Control control in parent.Controls)
@@ -552,10 +544,6 @@ namespace dfsa.ui
             monoClassicToolStripMenuItem.Checked = true;
             MakeControlsRedrawed(this);
         }
-        private void panel2_Paint(object sender, PaintEventArgs e)
-        {
-
-        }
 
         private void redrawdebugToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -577,5 +565,6 @@ namespace dfsa.ui
             isFrameDrawing = true;
             this.Invalidate();
         }
+
     }
 }
