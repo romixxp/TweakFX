@@ -50,5 +50,5 @@ It applies studio-grade audio effects to your ASIO microphone input and sends th
 
 ## 📜 License
 
-TweakFX is distributed under the [Extended MIT License](./LICENSE.txt).  
+TweakFX is distributed under the [Extended MIT License](./LICENSE).  
 You are free to use, modify, and redistribute this software, provided that proper attribution to **TweakFX** and **Leaf Software** is included in any public or derivative version.
