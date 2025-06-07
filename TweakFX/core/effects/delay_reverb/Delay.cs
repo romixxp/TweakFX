@@ -32,20 +32,9 @@ namespace TweakFX.core.effects.delay_reverb
             _writeIndex = 0;
         }
 
-        public void UpdateFeedback(float feedback)
-        {
-            _feedback = feedback;
-        }
-
-        public void UpdateWetMix(float wetMix)
-        {
-            _wetMix = wetMix;
-        }
-
-        public void UpdateDryMix(float dryMix)
-        {
-            _dryMix = dryMix;
-        }
+        public void UpdateFeedback(float feedback) => _feedback = feedback;
+        public void UpdateWetMix(float wetMix) => _wetMix = wetMix;
+        public void UpdateDryMix(float dryMix) => dryMix = dryMix;
 
         public void Process(float[] buffer, int offset, int count)
         {
