@@ -42,7 +42,7 @@ namespace TweakFX.core
 
         public void ShowControlPanel()
         {
-            var asioOut = new AsioOut("Focusrite USB ASIO");
+            var asioOut = new AsioOut(TweakFX.core._cvars.ASIO_name);
             asioOut.ShowControlPanel(); 
         }
         public void Stop() => _asioOut?.Stop();
