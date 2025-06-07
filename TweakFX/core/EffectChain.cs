@@ -24,6 +24,10 @@ namespace TweakFX.core
                 effect.Process(buffer, offset, count);
             }
         }
+        public void Clear()
+        {
+            _effects.Clear();
+        }
     }
 }
 
