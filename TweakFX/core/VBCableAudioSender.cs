@@ -21,8 +21,11 @@ public class VBCableAudioSender : IDisposable
 
         var deviceNumber = FindVBCableOutputDevice();
         if (deviceNumber == -1)
-            throw new Exception("VB-Cable Output (playback device) not found.");
-
+        {
+            Debug.WriteLine(VB-Cable Output (playback device) not found.")
+            return;
+        }    //throw new Exception("VB-Cable Output (playback device) not found.");
+            
         waveOut = new WaveOutEvent
         {
             DeviceNumber = deviceNumber,
