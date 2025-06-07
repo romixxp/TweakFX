@@ -21,7 +21,8 @@ namespace TweakFX.core
 
         public void Init()
         {
-            _asioOut = new AsioOut(_config.DriverName);
+            _asioOut = new AsioOut(TweakFX.core._cvars.ASIO_name);
+
             WaveFormat format = WaveFormat.CreateIeeeFloatWaveFormat(_config.SampleRate, 2);
             _bufferedWaveProvider = new BufferedWaveProvider(format);
             _asioOut.Init(_bufferedWaveProvider); // только это
