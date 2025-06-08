@@ -20,7 +20,7 @@ It applies studio-grade audio effects to your ASIO microphone input and sends th
   - Pitch Shifter  
   - Distortion  
 - 📈 Built-in **Oscilloscope** (stable with a 192-sample buffer)  
-- 🧪 **Tested hardware**: Focusrite Scarlett 2i2 3rd Gen  
+- 🧪 **Tested on hardware**: Focusrite Scarlett 2i2 3rd Gen  
 - ✅ **Supported sample rates**:  
   - 44,100 Hz  
   - 48,000 Hz  
