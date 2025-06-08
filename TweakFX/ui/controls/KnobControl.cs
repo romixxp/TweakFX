@@ -71,8 +71,8 @@ namespace dfsa.ui.controls
                     //                    brush.CenterColor = Color.Magenta;
                     //                    brush.SurroundColors = new Color[] { Color.FromArgb(60, 0, 60) };
                     ColorBlend colorBlend = new ColorBlend();
-                    colorBlend.Colors = [Color.FromArgb(170/2, 20/2, 180/2), Color.FromArgb(252, 108, 255), Color.FromArgb(30, 0, 30)];
-                    colorBlend.Positions = [0f, 0.4f, 1f];
+                    colorBlend.Colors = new[] { Color.FromArgb(170 / 2, 20 / 2, 180 / 2), Color.FromArgb(252, 108, 255), Color.FromArgb(30, 0, 30) };
+                    colorBlend.Positions = new[] { 0f, 0.4f, 1f };
                     fillBrush.InterpolationColors = colorBlend;
                     g.FillEllipse(fillBrush, shadowCircle);
                 }
