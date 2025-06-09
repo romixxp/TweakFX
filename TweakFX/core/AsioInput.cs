@@ -11,14 +11,10 @@ namespace TweakFX.core
 
     public class AsioInput
     { 
-        private readonly AsioConfig _config;
+        //private readonly AsioConfig _config;
         private AsioOut _asioOut;
         public event EventHandler<float[]> AudioAvailable;
-
-        public AsioInput(AsioConfig config)
-        {
-            _config = config;
-        }
+        private EventHandler<AsioAudioAvailableEventArgs> _handler;
         public AsioInput()
         {
 
@@ -26,15 +22,17 @@ namespace TweakFX.core
 
         public void Start()
         {
-            _asioOut = new AsioOut(_config.DriverName);
-            _asioOut.InitRecordAndPlayback(null, 1, _config.SampleRate);
+            _asioOut = new AsioOut(_cvars.ASIO_name);
+            _asioOut.InitRecordAndPlayback(null, 1, TweakFX.core._cvars.ASIO_samplerate);
 
-            _asioOut.AudioAvailable += (s, e) =>
+            _handler = (s, e) =>
             {
                 var buffer = new float[e.SamplesPerBuffer];
                 e.GetAsInterleavedSamples(buffer);
                 AudioAvailable?.Invoke(this, buffer);
-            };
+            }; 
+            _asioOut.AudioAvailable -= _handler;
+            _asioOut.AudioAvailable += _handler;
 
             _asioOut.Play();
 
@@ -45,30 +43,32 @@ namespace TweakFX.core
             var asioOut = new AsioOut(TweakFX.core._cvars.ASIO_name);
             asioOut.ShowControlPanel(); 
         }
-        int i = 0;
-        public async void Stop()
+        private int stopRetryCount = 0;
+        public async Task Stop()
         {
+            const int maxRetries = 10;
+            const int retryDelayMs = 50;
 
-            if (i < 10)
+            while (stopRetryCount < maxRetries)
             {
                 try
                 {
                     _asioOut?.Stop();
                     _asioOut?.Dispose();
+
+                    GC.Collect();
+                    GC.WaitForPendingFinalizers();
+
+                    break;
                 }
-                catch
+                catch (System.Runtime.InteropServices.SEHException)
                 {
-                    await Task.Delay(50);
-                    i++;
-                    Stop();
+                    stopRetryCount++;
+                    await Task.Delay(retryDelayMs);
                 }
-            }
-            else
-            {
-                i = 0;
-                return;
             }
 
+            stopRetryCount = 0;
         }
     }
 }

@@ -32,8 +32,7 @@ namespace TweakFX.core
         public AudioEngine(AsioConfig config)
         {
             _config = config;
-            Program.asioInput = new AsioInput(config);
-            Program.asioOutput = new AsioOutput(config);
+
             _effectChain = new EffectChain();
         }
 
@@ -98,15 +97,21 @@ namespace TweakFX.core
         #endregion
 
         SquareWaveGenerator generator = new SquareWaveGenerator(44100, 2000, durationSeconds: 2);
-        public async Task Start()
+        public async Task Start(int samplerate = 44100)
         {
-            Program.asioOutput.Init();
+            Program.asioInput = new AsioInput();
+            Program.asioOutput = new AsioOutput();
+            
+            Program.asioOutput.Init(samplerate);
+
+
             //DistortionNeonPedal form = new();
             _effectChain.AddEffect(clipper);
             _effectChain.AddEffect(delay);
             _effectChain.AddEffect(reverb);
             _effectChain.AddEffect(pitchShifter);
             _effectChain.AddEffect(spatializer);
+            
             //_effectChain.AddEffect(noiseReducer);
             /*float[] _buffer = { 0 };
             for (int i = 0; i < 5; i++)
@@ -163,10 +168,10 @@ namespace TweakFX.core
             }
         }
 
-        public void Stop()
+        public async Task Stop()
         {
-            Program.asioInput.Stop();
-            Program.asioOutput.Stop();
+            Program.asioInput.Stop().Wait();
+            Program.asioOutput.Stop().Wait(); 
         }
 
         private float[] MonoToStereo(float[] mono)
@@ -191,10 +196,11 @@ namespace TweakFX.core
             }
             return byteBuffer;
         }
-
         public void Dispose()
         {
-            Stop();
+            Stop().Wait();
+            sender.Dispose();
         }
+
     }
 }

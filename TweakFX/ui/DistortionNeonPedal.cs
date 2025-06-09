@@ -290,7 +290,7 @@ namespace dfsa.ui
 
             oscilloscopeTimer.Start();
 
-            Program.engine.Start();
+            Program.engine.Start(44100);
             float[] audioData = new float[630];
 
             InitDefPreset(Program.engine);
@@ -302,6 +302,9 @@ namespace dfsa.ui
 
             //await Task.Delay(5000);
             //Program.engine.Stop();
+            //Thread.Sleep(1000);
+            //AsioWatcher asioWatcher = new AsioWatcher(); //watching ASIO driver reset requests
+
         }
         private void FindDistortionKnobs(Control.ControlCollection controls, List<DistortionKnob> list)
         {
@@ -335,7 +338,7 @@ namespace dfsa.ui
         }
         private void exitToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            Program.engine.Stop();
+            Program.engine.Stop().Wait();
             Application.Exit();
         }
         private void GenerateTestData()
@@ -380,7 +383,7 @@ namespace dfsa.ui
         }
         private void SavePreset(string path) => _presetManager.SavePreset(path);
         private void LoadPreset(string path) => _presetManager.LoadPreset(path);
-        private void DistortionNeonPedal_FormClosing(object sender, FormClosingEventArgs e) => Program.engine?.Stop();
+        private void DistortionNeonPedal_FormClosing(object sender, FormClosingEventArgs e) => Program.engine?.Stop().Wait();
         private void pnlClose_Click(object sender, EventArgs e) => Application.Exit();
         private void pnlMinimize_MouseUp(object sender, MouseEventArgs e) => pnlMinimize.BackColor = Color.FromArgb(20, 255, 255, 255);
         private void pnlMinimize_MouseDown(object sender, MouseEventArgs e) => pnlMinimize.BackColor = Color.FromArgb(10, 255, 255, 255);
