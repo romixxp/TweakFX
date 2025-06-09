@@ -20,23 +20,28 @@ namespace TweakFX.core
 
         }
 
+        // Класс-level переменная:
+        private EventHandler<AsioAudioAvailableEventArgs> _1handler;
+
         public void Start()
         {
-            _asioOut = new AsioOut(_cvars.ASIO_name);
-            _asioOut.InitRecordAndPlayback(null, 1, TweakFX.core._cvars.ASIO_samplerate);
+            if (_asioOut != null && _1handler != null)
+                _asioOut.AudioAvailable -= _1handler;
 
-            _handler = (s, e) =>
+            _asioOut = new AsioOut(_cvars.ASIO_name);
+            _asioOut.InitRecordAndPlayback(null, 1, _cvars.ASIO_samplerate);
+
+            _1handler = (s, e) =>
             {
                 var buffer = new float[e.SamplesPerBuffer];
                 e.GetAsInterleavedSamples(buffer);
                 AudioAvailable?.Invoke(this, buffer);
-            }; 
-            _asioOut.AudioAvailable -= _handler;
-            _asioOut.AudioAvailable += _handler;
+            };
+            _asioOut.AudioAvailable += _1handler;
 
             _asioOut.Play();
-
         }
+
 
         public void ShowControlPanel()
         {

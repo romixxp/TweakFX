@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using TweakFX.core.effects.pitch;
 using TweakFX.core.effects.spatial;
 using TweakFX.core.effects.dynamics;
+using System.Diagnostics;
 
 namespace TweakFX.core
 {
@@ -36,17 +37,13 @@ namespace TweakFX.core
             _effectChain = new EffectChain();
         }
 
-        public void AddEffect(IAudioEffect effect)
-        {
-            _effectChain.AddEffect(effect);
-        }
-        Clipper2 clipper = new core.effects.distortion.Clipper2();
-        Delay delay = new core.effects.delay_reverb.Delay(250);
-        Reverb reverb = new core.effects.delay_reverb.Reverb(decayMs: 1500, preDelayMs: 0);
-        PitchShifter pitchShifter = new PitchShifter(1f, 50, 44100); // Параметры по умолчанию: 1.0f, 50 мс, 44100 Гц
-        Spatializer spatializer = new(0f);
-        NoiseReducer noiseReducer = new NoiseReducer(); 
 
+        Clipper2 clipper;
+        Delay delay;
+        Reverb reverb;
+        PitchShifter pitchShifter; // Параметры по умолчанию: 1.0f, 50 мс, 44100 Гц
+        Spatializer spatializer;
+        NoiseReducer noiseReducer;
         #region Updaters
 
         #region Distortion
@@ -101,17 +98,24 @@ namespace TweakFX.core
         {
             Program.asioInput = new AsioInput();
             Program.asioOutput = new AsioOutput();
-            
+
             Program.asioOutput.Init(samplerate);
-
-
+            _effectChain.Clear();
+            clipper = new core.effects.distortion.Clipper2();
+            delay = new core.effects.delay_reverb.Delay(250, sampleRate: _cvars.ASIO_samplerate);
+            //Debug.WriteLine($"Delay sample rate: {_cvars.ASIO_samplerate}");
+            reverb = new core.effects.delay_reverb.Reverb(decayMs: 1500, preDelayMs: 0, sampleRate: _cvars.ASIO_samplerate);
+            pitchShifter = new PitchShifter(1f, 50, sampleRate: _cvars.ASIO_samplerate);
+            spatializer = new(0f);
+            noiseReducer = new NoiseReducer();
             //DistortionNeonPedal form = new();
+
             _effectChain.AddEffect(clipper);
             _effectChain.AddEffect(delay);
             _effectChain.AddEffect(reverb);
             _effectChain.AddEffect(pitchShifter);
             _effectChain.AddEffect(spatializer);
-            
+
             //_effectChain.AddEffect(noiseReducer);
             /*float[] _buffer = { 0 };
             for (int i = 0; i < 5; i++)
@@ -120,10 +124,9 @@ namespace TweakFX.core
                 _asioOutput.Write(_buffer);
                 await Task.Delay(250);
             }*/
-            Program.asioInput.AudioAvailable += (s, buffer) =>
+            EventHandler<float[]> onAudioAvailable;
+            onAudioAvailable = (s, buffer) =>
             {
-                //for (int i = 0; i < buffer.Length; i++)
-                //    buffer[i] *= involume;
                 float[] dryBuffer = buffer.ToArray();
 
                 int processedSamples = (int)(buffer.Length * processFraction); // processFraction от 0.0 до 1.0
@@ -154,6 +157,8 @@ namespace TweakFX.core
                     _lastBuffer = buffer.ToArray();
                 }
             };
+            Program.asioInput.AudioAvailable -= onAudioAvailable;
+            Program.asioInput.AudioAvailable += onAudioAvailable;
             Program.asioInput.Start();
         }
 

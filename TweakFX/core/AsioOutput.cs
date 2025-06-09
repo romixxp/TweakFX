@@ -43,6 +43,7 @@ namespace TweakFX.core
                 double sampleRate = await AsioUtils.GetAsioSampleRateStaAsync(TweakFX.core._cvars.ASIO_name);
                 Debug.WriteLine(samplerate);
                 TweakFX.core._cvars.ASIO_samplerate = (int)sampleRate;
+                _bufferedWaveProvider?.ClearBuffer();
                 Program.engine.Start(TweakFX.core._cvars.ASIO_samplerate);
             };
             _asioOut.DriverResetRequest -= _handler;

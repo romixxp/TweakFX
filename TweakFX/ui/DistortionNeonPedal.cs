@@ -213,6 +213,11 @@ namespace dfsa.ui
         }
         private async void DistortionNeonPedal_Load(object sender, EventArgs e)
         {
+            // Получить sample rate (асинхронно)
+            AsioUtils.SetAsioSampleRateViaInit(TweakFX.core._cvars.ASIO_name, 44100);
+
+
+
             MakeControlsTransparent(this);
             panel1.MouseDown += topPanel_MouseDown;
             panel1.MouseUp += topPanel_MouseUp;
