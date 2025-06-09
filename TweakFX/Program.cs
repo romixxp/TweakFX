@@ -10,6 +10,7 @@ namespace TweakFX
         /// </summary>
         public static AsioInput asioInput;
         public static AsioOutput asioOutput;
+        public static AudioEngine engine;
         [STAThread]
         static void Main()
         {

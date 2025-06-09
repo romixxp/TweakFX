@@ -45,6 +45,30 @@ namespace TweakFX.core
             var asioOut = new AsioOut(TweakFX.core._cvars.ASIO_name);
             asioOut.ShowControlPanel(); 
         }
-        public void Stop() => _asioOut?.Stop();
+        int i = 0;
+        public async void Stop()
+        {
+
+            if (i < 10)
+            {
+                try
+                {
+                    _asioOut?.Stop();
+                    _asioOut?.Dispose();
+                }
+                catch
+                {
+                    await Task.Delay(50);
+                    i++;
+                    Stop();
+                }
+            }
+            else
+            {
+                i = 0;
+                return;
+            }
+
+        }
     }
 }

@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace TweakFX.core
 {
+    using System.Diagnostics;
     using NAudio.Wave;
 
     public class AsioOutput
@@ -27,6 +28,13 @@ namespace TweakFX.core
             _bufferedWaveProvider = new BufferedWaveProvider(format);
             _asioOut.Init(_bufferedWaveProvider); // только это
             _asioOut.Play();
+            _asioOut.DriverResetRequest += async (s, e) =>
+            {
+                Debug.WriteLine("asio reset request");
+                //await Task.Delay(50);
+                Program.engine.Stop();
+
+            };
         }
         public float SetVolume(float vol) => volume = Math.Clamp(vol, 0f, 1f);
         public void Write(float[] buffer)
@@ -38,7 +46,30 @@ namespace TweakFX.core
             _bufferedWaveProvider.AddSamples(byteBuffer, 0, byteBuffer.Length);
 
         }
+        int i = 0;
+        public async void Stop()
+        {
 
-        public void Stop() => _asioOut?.Stop();
+            if (i < 10)
+            {
+                try
+                {
+                    _asioOut?.Stop();
+                    _asioOut?.Dispose();
+                }
+                catch
+                {
+                    await Task.Delay(50);
+                    i++;
+                    Stop();
+                }
+            }
+            else
+            {
+                i = 0;
+                return;
+            }
+
+        }
     }
 }
