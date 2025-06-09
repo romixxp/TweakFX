@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using TweakFX.core.effects.pitch;
 using TweakFX.core.effects.spatial;
 using TweakFX.core.effects.dynamics;
+using System.Diagnostics;
 
 namespace TweakFX.core
 {
@@ -19,8 +20,8 @@ namespace TweakFX.core
     {
         public event Action<float[]> OnBufferProcessed;
         private readonly AsioConfig _config;
-        private readonly AsioInput _asioInput;
-        private readonly AsioOutput _asioOutput;
+        //private readonly AsioInput _asioInput;
+        //private readonly AsioOutput _asioOutput;
         private readonly EffectChain _effectChain;
         private float volume = 1.0f;
         private float involume = 1.0f;
@@ -32,22 +33,17 @@ namespace TweakFX.core
         public AudioEngine(AsioConfig config)
         {
             _config = config;
-            _asioInput = new AsioInput(config);
-            _asioOutput = new AsioOutput(config);
+
             _effectChain = new EffectChain();
         }
 
-        public void AddEffect(IAudioEffect effect)
-        {
-            _effectChain.AddEffect(effect);
-        }
-        Clipper2 clipper = new core.effects.distortion.Clipper2();
-        Delay delay = new core.effects.delay_reverb.Delay(250);
-        Reverb reverb = new core.effects.delay_reverb.Reverb(decayMs: 1500, preDelayMs: 0);
-        PitchShifter pitchShifter = new PitchShifter(1f, 50, 44100); // Параметры по умолчанию: 1.0f, 50 мс, 44100 Гц
-        Spatializer spatializer = new(0f);
-        NoiseReducer noiseReducer = new NoiseReducer(); 
 
+        Clipper2 clipper;
+        Delay delay;
+        Reverb reverb;
+        PitchShifter pitchShifter; // Параметры по умолчанию: 1.0f, 50 мс, 44100 Гц
+        Spatializer spatializer;
+        NoiseReducer noiseReducer;
         #region Updaters
 
         #region Distortion
@@ -91,22 +87,35 @@ namespace TweakFX.core
 
         public float SetInVol(float vol) { return volume = vol * 2f; }
         public float SetOutVol(float vol) { return involume = vol * 2f; }
-        public float SetASIOOutputLevel(float level) { return _asioOutput.SetVolume(level); }
+        public float SetASIOOutputLevel(float level) { return Program.asioOutput.SetVolume(level); }
         public float SetWASAPIOutputLevel(float level) { return WASAPIlevel = level; }
         public float SetMix(float mix) { return this.mix = mix; }
 
         #endregion
 
         SquareWaveGenerator generator = new SquareWaveGenerator(44100, 2000, durationSeconds: 2);
-        public async Task Start()
+        public async Task Start(int samplerate = 44100)
         {
-            _asioOutput.Init();
+            Program.asioInput = new AsioInput();
+            Program.asioOutput = new AsioOutput();
+
+            Program.asioOutput.Init(samplerate);
+            _effectChain.Clear();
+            clipper = new core.effects.distortion.Clipper2();
+            delay = new core.effects.delay_reverb.Delay(250, sampleRate: _cvars.ASIO_samplerate);
+            //Debug.WriteLine($"Delay sample rate: {_cvars.ASIO_samplerate}");
+            reverb = new core.effects.delay_reverb.Reverb(decayMs: 1500, preDelayMs: 0, sampleRate: _cvars.ASIO_samplerate);
+            pitchShifter = new PitchShifter(1f, 50, sampleRate: _cvars.ASIO_samplerate);
+            spatializer = new(0f);
+            noiseReducer = new NoiseReducer();
             //DistortionNeonPedal form = new();
+
             _effectChain.AddEffect(clipper);
             _effectChain.AddEffect(delay);
             _effectChain.AddEffect(reverb);
             _effectChain.AddEffect(pitchShifter);
             _effectChain.AddEffect(spatializer);
+
             //_effectChain.AddEffect(noiseReducer);
             /*float[] _buffer = { 0 };
             for (int i = 0; i < 5; i++)
@@ -115,10 +124,9 @@ namespace TweakFX.core
                 _asioOutput.Write(_buffer);
                 await Task.Delay(250);
             }*/
-            _asioInput.AudioAvailable += (s, buffer) =>
+            EventHandler<float[]> onAudioAvailable;
+            onAudioAvailable = (s, buffer) =>
             {
-                //for (int i = 0; i < buffer.Length; i++)
-                //    buffer[i] *= involume;
                 float[] dryBuffer = buffer.ToArray();
 
                 int processedSamples = (int)(buffer.Length * processFraction); // processFraction от 0.0 до 1.0
@@ -139,7 +147,7 @@ namespace TweakFX.core
                 //    buffer[i] *= volume;
 
                 var stereoBuffer = MonoToStereo(buffer);
-                _asioOutput.Write(stereoBuffer);
+                Program.asioOutput.Write(stereoBuffer);
                 for (int i = 0; i < stereoBuffer.Length; i++)
                     stereoBuffer[i] *= WASAPIlevel;
                 sender.SendBuffer(FloatToPcm16Bytes(stereoBuffer));
@@ -149,7 +157,9 @@ namespace TweakFX.core
                     _lastBuffer = buffer.ToArray();
                 }
             };
-            _asioInput.Start();
+            Program.asioInput.AudioAvailable -= onAudioAvailable;
+            Program.asioInput.AudioAvailable += onAudioAvailable;
+            Program.asioInput.Start();
         }
 
         private float[] _lastBuffer = Array.Empty<float>();
@@ -163,10 +173,10 @@ namespace TweakFX.core
             }
         }
 
-        public void Stop()
+        public async Task Stop()
         {
-            _asioInput.Stop();
-            _asioOutput.Stop();
+            Program.asioInput.Stop().Wait();
+            Program.asioOutput.Stop().Wait(); 
         }
 
         private float[] MonoToStereo(float[] mono)
@@ -191,10 +201,11 @@ namespace TweakFX.core
             }
             return byteBuffer;
         }
-
         public void Dispose()
         {
-            Stop();
+            Stop().Wait();
+            sender.Dispose();
         }
+
     }
 }

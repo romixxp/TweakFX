@@ -13,6 +13,8 @@ using System.Diagnostics;
 using SkiaSharp.Views.Desktop;
 using SkiaSharp;
 using TweakFX.core.client_pereferences;
+using TweakFX;
+using System.Threading.Tasks;
 
 
 namespace dfsa.ui
@@ -22,7 +24,7 @@ namespace dfsa.ui
         private bool isDragging = false;
         private Point offset;
         private Clipper _distortionEffect;
-        AudioEngine engine;
+        //AudioEngine engine;
         private System.Windows.Forms.Timer oscilloscopeTimer;
         private PresetManager _presetManager;
         private List<DistortionKnob> _distortionKnobs;
@@ -209,8 +211,13 @@ namespace dfsa.ui
             engine.SetWASAPIOutputLevel(knobASOU.Value);
             engine.SetMix(knobAVMix.Value);
         }
-        private void DistortionNeonPedal_Load(object sender, EventArgs e)
+        private async void DistortionNeonPedal_Load(object sender, EventArgs e)
         {
+            // Получить sample rate (асинхронно)
+            AsioUtils.SetAsioSampleRateViaInit(TweakFX.core._cvars.ASIO_name, 44100);
+
+
+
             MakeControlsTransparent(this);
             panel1.MouseDown += topPanel_MouseDown;
             panel1.MouseUp += topPanel_MouseUp;
@@ -223,49 +230,49 @@ namespace dfsa.ui
                 OutputChannel = 0,
                 SampleRate = 44100
             };
-            engine = new AudioEngine(config);
+            Program.engine = new AudioEngine(config);
 
             //_distortionEffect = new Clipper(distortionAmount: knobDist.Value, tone: knobTone.Value, volume: knobVol.Value);
             #region ValueChanged
 
             #region Distortion
 
-            knobThres.ValueChanged += (s, e) => engine.UpdThres(knobThres.Value * 5);
-            knobDist.ValueChanged += (s, e) => engine.UpdDist(knobDist.Value * 10);
+            knobThres.ValueChanged += (s, e) => Program.engine.UpdThres(knobThres.Value * 5);
+            knobDist.ValueChanged += (s, e) => Program.engine.UpdDist(knobDist.Value * 10);
 
             #endregion
 
             #region Delay
 
-            knobDelay.ValueChanged += (s, e) => engine.UpdDelayTime((int)(knobDelay.Value * 1000));
-            knobFeedback.ValueChanged += (s, e) => engine.UpdFeedback(knobFeedback.Value);
-            knobDelayMix.ValueChanged += (s, e) => engine.UpdWetMix(knobDelayMix.Value);
+            knobDelay.ValueChanged += (s, e) => Program.engine.UpdDelayTime((int)(knobDelay.Value * 1000));
+            knobFeedback.ValueChanged += (s, e) => Program.engine.UpdFeedback(knobFeedback.Value);
+            knobDelayMix.ValueChanged += (s, e) => Program.engine.UpdWetMix(knobDelayMix.Value);
 
             #endregion
 
             #region Reverb
 
-            knobDecay.ValueChanged += (s, e) => engine.UpdDecay(knobDecay.Value * 70000);
-            knobReverbMix.ValueChanged += (s, e) => engine.UpdWetMixReverb(knobReverbMix.Value);
-            knobDamping.ValueChanged += (s, e) => engine.UpdDamping(knobDamping.Value);
-            knobPreDelay.ValueChanged += (s, e) => engine.UpdPreDelay(knobPreDelay.Value * 1000);
+            knobDecay.ValueChanged += (s, e) => Program.engine.UpdDecay(knobDecay.Value * 70000);
+            knobReverbMix.ValueChanged += (s, e) => Program.engine.UpdWetMixReverb(knobReverbMix.Value);
+            knobDamping.ValueChanged += (s, e) => Program.engine.UpdDamping(knobDamping.Value);
+            knobPreDelay.ValueChanged += (s, e) => Program.engine.UpdPreDelay(knobPreDelay.Value * 1000);
 
             #endregion
 
             #region Pitch Shifter
 
-            knobPitchMix.ValueChanged += (s, e) => engine.UpdPitchShiftMix(knobPitchMix.Value);
-            knobShift.ValueChanged += (s, e) => engine.UpdPitchShift(knobShift.Value);
+            knobPitchMix.ValueChanged += (s, e) => Program.engine.UpdPitchShiftMix(knobPitchMix.Value);
+            knobShift.ValueChanged += (s, e) => Program.engine.UpdPitchShift(knobShift.Value);
 
             #endregion
 
-            knobASOU.ValueChanged += (s, e) => engine.SetASIOOutputLevel(knobASOU.Value);
+            knobASOU.ValueChanged += (s, e) => Program.engine.SetASIOOutputLevel(knobASOU.Value);
             knobVROU.ValueChanged += (s, e) =>
             {
-                engine.SetWASAPIOutputLevel(knobVROU.Value);
-                engine.UpdWetMix(knobDelayMix.Value * knobVROU.Value);
+                Program.engine.SetWASAPIOutputLevel(knobVROU.Value);
+                Program.engine.UpdWetMix(knobDelayMix.Value * knobVROU.Value);
             };
-            knobAVMix.ValueChanged += (s, e) => engine.SetMix(knobAVMix.Value);
+            knobAVMix.ValueChanged += (s, e) => Program.engine.SetMix(knobAVMix.Value);
 
 
             #endregion
@@ -279,7 +286,7 @@ namespace dfsa.ui
 
             oscilloscopeTimer.Tick += (s, e) =>
             {
-                float[] buffer = engine?.GetLatestBuffer();
+                float[] buffer = Program.engine?.GetLatestBuffer();
                 if (buffer != null && buffer.Length > 0)
                 {
                     oscilloscope.UpdateBuffer(buffer);
@@ -288,15 +295,21 @@ namespace dfsa.ui
 
             oscilloscopeTimer.Start();
 
-            engine.Start();
+            Program.engine.Start(44100);
             float[] audioData = new float[630];
 
-            InitDefPreset(engine);
+            InitDefPreset(Program.engine);
 
             _distortionKnobs = new List<DistortionKnob>();
             FindDistortionKnobs(this.Controls, _distortionKnobs);
 
             _presetManager = new PresetManager(_distortionKnobs);
+
+            //await Task.Delay(5000);
+            //Program.engine.Stop();
+            //Thread.Sleep(1000);
+            //AsioWatcher asioWatcher = new AsioWatcher(); //watching ASIO driver reset requests
+
         }
         private void FindDistortionKnobs(Control.ControlCollection controls, List<DistortionKnob> list)
         {
@@ -330,7 +343,7 @@ namespace dfsa.ui
         }
         private void exitToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            engine.Stop();
+            Program.engine.Stop().Wait();
             Application.Exit();
         }
         private void GenerateTestData()
@@ -375,7 +388,7 @@ namespace dfsa.ui
         }
         private void SavePreset(string path) => _presetManager.SavePreset(path);
         private void LoadPreset(string path) => _presetManager.LoadPreset(path);
-        private void DistortionNeonPedal_FormClosing(object sender, FormClosingEventArgs e) => engine?.Stop();
+        private void DistortionNeonPedal_FormClosing(object sender, FormClosingEventArgs e) => Program.engine?.Stop().Wait();
         private void pnlClose_Click(object sender, EventArgs e) => Application.Exit();
         private void pnlMinimize_MouseUp(object sender, MouseEventArgs e) => pnlMinimize.BackColor = Color.FromArgb(20, 255, 255, 255);
         private void pnlMinimize_MouseDown(object sender, MouseEventArgs e) => pnlMinimize.BackColor = Color.FromArgb(10, 255, 255, 255);
@@ -566,5 +579,9 @@ namespace dfsa.ui
             this.Invalidate();
         }
 
+        private void panel1_Paint(object sender, PaintEventArgs e)
+        {
+
+        }
     }
 }
