@@ -101,7 +101,7 @@ namespace TweakFX.core
         public async Task Start()
         {
             _asioOutput.Init();
-            DistortionNeonPedal form = new();
+            //DistortionNeonPedal form = new();
             _effectChain.AddEffect(clipper);
             _effectChain.AddEffect(delay);
             _effectChain.AddEffect(reverb);
