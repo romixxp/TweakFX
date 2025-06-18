@@ -13,6 +13,7 @@ using TweakFX.core.effects.pitch;
 using TweakFX.core.effects.spatial;
 using TweakFX.core.effects.dynamics;
 using System.Diagnostics;
+using TweakFX.core.effects.eq;
 
 namespace TweakFX.core
 {
@@ -44,6 +45,7 @@ namespace TweakFX.core
         PitchShifter pitchShifter; // Параметры по умолчанию: 1.0f, 50 мс, 44100 Гц
         Spatializer spatializer;
         NoiseReducer noiseReducer;
+        Equalizer equalizer;
         #region Updaters
 
         #region Distortion
@@ -85,6 +87,13 @@ namespace TweakFX.core
 
         #endregion
 
+        #region EQ
+
+        public void EQSetDryWetMix(float drywet) => equalizer.SetDryWetMix(drywet);
+        public void EQUpdateBands(List<EqualizerBand> _bands) => equalizer.UpdateBands(_bands);
+
+        #endregion
+
         public float SetInVol(float vol) { return volume = vol * 2f; }
         public float SetOutVol(float vol) { return involume = vol * 2f; }
         public float SetASIOOutputLevel(float level) { return Program.asioOutput.SetVolume(level); }
@@ -98,7 +107,43 @@ namespace TweakFX.core
         {
             Program.asioInput = new AsioInput();
             Program.asioOutput = new AsioOutput();
-
+            var bands = new List<EqualizerBand>
+            {
+                new EqualizerBand
+                {
+                    Frequency = 60,
+                    Gain = 20f,
+                    FilterType = FilterType.LowShelf
+                },
+                new EqualizerBand
+                {
+                    Frequency = 150,
+                    Gain = 0f,
+                    Bandwidth = 1f,
+                    FilterType = FilterType.Peaking
+                },
+                new EqualizerBand
+                {
+                    Frequency = 400,
+                    Gain = 0f,
+                    Bandwidth = 1f,
+                    FilterType = FilterType.Peaking
+                },
+                new EqualizerBand
+                {
+                    Frequency = 1000,
+                    Gain = 0f,
+                    Bandwidth = 1f,
+                    FilterType = FilterType.Peaking
+                },
+                new EqualizerBand
+                {
+                    Frequency = 2400,
+                    Gain = 0f,
+                    Bandwidth = 1f,
+                    FilterType = FilterType.Peaking
+                }
+            };
             Program.asioOutput.Init(samplerate);
             _effectChain.Clear();
             clipper = new core.effects.distortion.Clipper2();
@@ -108,13 +153,15 @@ namespace TweakFX.core
             pitchShifter = new PitchShifter(1f, 50, sampleRate: _cvars.ASIO_samplerate);
             spatializer = new(0f);
             noiseReducer = new NoiseReducer();
+            equalizer = new Equalizer(bands, sampleRate: 44100);
             //DistortionNeonPedal form = new();
 
             _effectChain.AddEffect(clipper);
             _effectChain.AddEffect(delay);
             _effectChain.AddEffect(reverb);
             _effectChain.AddEffect(pitchShifter);
-            _effectChain.AddEffect(spatializer);
+            //_effectChain.AddEffect(spatializer);
+            _effectChain.AddEffect(equalizer);
 
             //_effectChain.AddEffect(noiseReducer);
             /*float[] _buffer = { 0 };
@@ -126,7 +173,7 @@ namespace TweakFX.core
             }*/
             EventHandler<float[]> onAudioAvailable;
             onAudioAvailable = (s, buffer) =>
-            {
+            { 
                 float[] dryBuffer = buffer.ToArray();
 
                 int processedSamples = (int)(buffer.Length * processFraction); // processFraction от 0.0 до 1.0

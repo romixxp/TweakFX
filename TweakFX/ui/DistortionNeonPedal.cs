@@ -15,6 +15,7 @@ using SkiaSharp;
 using TweakFX.core.client_pereferences;
 using TweakFX;
 using System.Threading.Tasks;
+using TweakFX.core.effects.eq;
 
 
 namespace dfsa.ui
@@ -41,9 +42,8 @@ namespace dfsa.ui
 
             skControl.Dock = DockStyle.Fill;
             skControl.PaintSurface += SkControl_PaintSurface;
-            skControl.BackColor = Color.Black; // Прозрачность не работает — оставим фон, который не мешает
+            skControl.BackColor = Color.Black;
             this.Controls.Add(skControl);
-            //skControl.BringToFront(); // Поверх всех контролов
         }
 
         protected override void OnHandleCreated(EventArgs e)
@@ -67,14 +67,13 @@ namespace dfsa.ui
             float time = (float)(stopwatch.ElapsedMilliseconds % 10000) / 10000f;
             float hueShift = (time * 360f) % 360f;
 
-            // === Градиентный фон ===
             using (var bgPaint = new SKPaint())
             {
                 var gradientColors = new[]
                 {
-            SKColor.FromHsv((hueShift + 0) % 360, 80, 15),
-            SKColor.FromHsv((hueShift + 60) % 360, 80, 10)
-        };
+                    SKColor.FromHsv((hueShift + 0) % 360, 80, 15),
+                    SKColor.FromHsv((hueShift + 60) % 360, 80, 10)
+                };
                 var shader = SKShader.CreateLinearGradient(
                     new SKPoint(0, 0),
                     new SKPoint(width, height),
@@ -86,7 +85,6 @@ namespace dfsa.ui
                 canvas.DrawRect(new SKRect(0, 0, width, height), bgPaint);
             }
 
-            // === Рамка с переходом цвета ===
             using (var paint = new SKPaint
             {
                 Style = SKPaintStyle.Stroke,
@@ -97,12 +95,12 @@ namespace dfsa.ui
                 // Границы
                 var points = new[]
                 {
-            new SKPoint(thickness, thickness),
-            new SKPoint(width - thickness, thickness),           // top
-            new SKPoint(width - thickness, height - thickness),  // right
-            new SKPoint(thickness, height - thickness),          // bottom
-            new SKPoint(thickness, thickness)                    // left
-        };
+                    new SKPoint(thickness, thickness),
+                    new SKPoint(width - thickness, thickness),           // top
+                    new SKPoint(width - thickness, height - thickness),  // right
+                    new SKPoint(thickness, height - thickness),          // bottom
+                    new SKPoint(thickness, thickness)                    // left
+                };
 
                 for (int i = 0; i < 4; i++)
                 {
@@ -215,9 +213,6 @@ namespace dfsa.ui
         {
             // Получить sample rate (асинхронно)
             AsioUtils.SetAsioSampleRateViaInit(TweakFX.core._cvars.ASIO_name, 44100);
-
-
-
             MakeControlsTransparent(this);
             panel1.MouseDown += topPanel_MouseDown;
             panel1.MouseUp += topPanel_MouseUp;
@@ -266,6 +261,17 @@ namespace dfsa.ui
 
             #endregion
 
+            #region EQ
+
+            EQMixKnob.ValueChanged += (s, e) => Program.engine.EQSetDryWetMix(EQMixKnob.Value);
+            eqBand60.ValueChanged += SendBands;
+            eqBand150.ValueChanged += SendBands;
+            eqBand400.ValueChanged += SendBands;
+            eqBand1k.ValueChanged += SendBands;
+            eqBand2_4k.ValueChanged += SendBands;
+
+            #endregion
+
             knobASOU.ValueChanged += (s, e) => Program.engine.SetASIOOutputLevel(knobASOU.Value);
             knobVROU.ValueChanged += (s, e) =>
             {
@@ -305,6 +311,46 @@ namespace dfsa.ui
 
             _presetManager = new PresetManager(_distortionKnobs);
 
+
+            var bands = new List<EqualizerBand>
+            {
+                new EqualizerBand
+                {
+                    Frequency = 60,
+                    Gain = 0f,
+                    FilterType = FilterType.LowShelf
+                },
+                new EqualizerBand
+                {
+                    Frequency = 150,
+                    Gain = 0f,
+                    Bandwidth = 1f,
+                    FilterType = FilterType.Peaking
+                },
+                new EqualizerBand
+                {
+                    Frequency = 400,
+                    Gain = 0f,
+                    Bandwidth = 1f,
+                    FilterType = FilterType.Peaking
+                },
+                new EqualizerBand
+                {
+                    Frequency = 1000,
+                    Gain = 0f,
+                    Bandwidth = 1f,
+                    FilterType = FilterType.Peaking
+                },
+                new EqualizerBand
+                {
+                    Frequency = 2400,
+                    Gain = 0f,
+                    Bandwidth = 1f,
+                    FilterType = FilterType.HighShelf
+                }
+            };
+
+
             //await Task.Delay(5000);
             //Program.engine.Stop();
             //Thread.Sleep(1000);
@@ -325,6 +371,48 @@ namespace dfsa.ui
                 }
             }
         }
+
+        private void SendBands(object sender, EventArgs e)
+        {
+            var bands = new List<EqualizerBand>
+            {
+                new EqualizerBand
+                {
+                    Frequency = 60,
+                    Gain = eqBand60.Value,
+                    FilterType = FilterType.LowShelf
+                },
+                new EqualizerBand
+                {
+                    Frequency = 150,
+                    Gain = eqBand150.Value,
+                    Bandwidth = 1f,
+                    FilterType = FilterType.Peaking
+                },
+                new EqualizerBand
+                {
+                    Frequency = 400,
+                    Gain = eqBand400.Value,
+                    Bandwidth = 1f,
+                    FilterType = FilterType.Peaking
+                },
+                new EqualizerBand
+                {
+                    Frequency = 1000,
+                    Gain = eqBand1k.Value,
+                    Bandwidth = 1f,
+                    FilterType = FilterType.Peaking
+                },
+                new EqualizerBand
+                {
+                    Frequency = 2400,
+                    Gain = eqBand2_4k.Value,
+                    Bandwidth = 1f,
+                    FilterType = FilterType.HighShelf
+                }
+            };
+            Program.engine.EQUpdateBands(bands);
+        }
         private void preferencesToolStripMenuItem_Click(object sender, EventArgs e)
         {
             //AsioVisualConfig virtconf = new AsioVisualConfig();
@@ -336,10 +424,12 @@ namespace dfsa.ui
 
                 engine.Restart(driverName, sampleRate, bufferSize);
             }*/
-            AsioInput asioInput = new AsioInput();
+            //AsioInput asioInput = new AsioInput();
             //Pereferences_Form perForm = new();
             //perForm.Show();
-            asioInput.ShowControlPanel();
+            //asioInput.ShowControlPanel();
+            TweakFX.core.ui.AsioVisualConfig asioVisualConfig = new TweakFX.core.ui.AsioVisualConfig();
+            asioVisualConfig.Show();
         }
         private void exitToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -411,55 +501,12 @@ namespace dfsa.ui
 
             while (!this.IsDisposed)
             {
-                skControl.Invalidate(); // Обновляем Skia рамку
-                await Task.Delay(16); // ~60 FPS
+                skControl.Invalidate();
+                await Task.Delay(16);
             }
         }
 
-        private void DrawRainbowFrame()
-        {
-            try
-            {
-                using (Graphics g = this.CreateGraphics())
-                using (Pen pen = new Pen(Color.Black, 1))
-                {
-                    Rectangle rect = this.ClientRectangle;
-
-                    float step = 1f / (rect.Width * 2 + rect.Height * 2);
-                    float timeElapsed = (float)stopwatch.ElapsedMilliseconds / 1000f;
-                    float hue = (timeElapsed * 50f) % 360f;
-
-                    float currentHue = hue;
-
-                    Action<int, int, int, int> drawLine = (x1, y1, x2, y2) =>
-                    {
-                        pen.Color = ColorFromHSV(currentHue, 0.6f, 0.8f);
-                        g.DrawLine(pen, x1, y1, x2, y2);
-                        currentHue = (currentHue + step * 360) % 360;
-                    };
-
-                    // Верх
-                    for (int x = 0; x < rect.Width; x++)
-                        drawLine(x, 0, x, 2);
-
-                    // Право
-                    for (int y = 0; y < rect.Height; y++)
-                        drawLine(rect.Width - 3, y, rect.Width, y);
-
-                    // Низ
-                    for (int x = rect.Width - 1; x >= 0; x--)
-                        drawLine(x, rect.Height - 3, x, rect.Height);
-
-                    // Лево
-                    for (int y = rect.Height - 1; y >= 0; y--)
-                        drawLine(0, y, 2, y);
-                }
-            }
-            catch
-            {
-                // Игнорировать ошибки при отрисовке во время сворачивания и т.п.
-            }
-        }
+        
 
 
 
@@ -580,6 +627,11 @@ namespace dfsa.ui
         }
 
         private void panel1_Paint(object sender, PaintEventArgs e)
+        {
+
+        }
+
+        private void panel7_Paint(object sender, PaintEventArgs e)
         {
 
         }
