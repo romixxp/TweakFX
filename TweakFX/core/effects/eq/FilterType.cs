@@ -10,6 +10,12 @@ namespace TweakFX.core.effects.eq
     {
         Peaking,
         LowShelf,
-        HighShelf
+        HighShelf,
+        LowCut,
+        HighCut,
+        Notch,
+        AllPass,
+        BandPass,
+        BandStop
     }
 }

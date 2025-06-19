@@ -347,6 +347,7 @@ namespace dfsa.ui
                     Gain = 0f,
                     Bandwidth = 1f,
                     FilterType = FilterType.HighShelf
+
                 }
             };
 
