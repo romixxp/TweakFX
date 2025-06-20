@@ -83,12 +83,6 @@ namespace dfsa.ui
             label2 = new Label();
             label5 = new Label();
             panelDistortion = new Panel();
-            panel6 = new Panel();
-            label18 = new Label();
-            label19 = new Label();
-            label20 = new Label();
-            distortionKnob1 = new dfsa.ui.controls.DistortionKnob();
-            distortionKnob2 = new dfsa.ui.controls.DistortionKnob();
             panel3 = new Panel();
             label17 = new Label();
             label14 = new Label();
@@ -98,6 +92,7 @@ namespace dfsa.ui
             knobWindowSize = new dfsa.ui.controls.DistortionKnob();
             knobShift = new dfsa.ui.controls.DistortionKnob();
             panel4 = new Panel();
+            frequencyGainControl1 = new TweakFX.core.effects.eq.FrequencyGainControl();
             panel5 = new Panel();
             panel7 = new Panel();
             panel8 = new Panel();
@@ -125,7 +120,6 @@ namespace dfsa.ui
             panelDelay.SuspendLayout();
             panel2.SuspendLayout();
             panelDistortion.SuspendLayout();
-            panel6.SuspendLayout();
             panel3.SuspendLayout();
             panel4.SuspendLayout();
             panel5.SuspendLayout();
@@ -143,6 +137,7 @@ namespace dfsa.ui
             panel1.Name = "panel1";
             panel1.Size = new Size(1433, 36);
             panel1.TabIndex = 0;
+            panel1.Paint += panel1_Paint_1;
             // 
             // pnlMinimize
             // 
@@ -315,6 +310,7 @@ namespace dfsa.ui
             oscilloscope.Size = new Size(387, 161);
             oscilloscope.TabIndex = 10;
             oscilloscope.Text = "oscilloscope1";
+            oscilloscope.Click += oscilloscope_Click;
             // 
             // panelDelay
             // 
@@ -675,7 +671,6 @@ namespace dfsa.ui
             // 
             panelDistortion.BackColor = Color.FromArgb(25, 30, 40);
             panelDistortion.BorderStyle = BorderStyle.FixedSingle;
-            panelDistortion.Controls.Add(panel6);
             panelDistortion.Controls.Add(label5);
             panelDistortion.Controls.Add(label2);
             panelDistortion.Controls.Add(lbDistortion);
@@ -685,79 +680,6 @@ namespace dfsa.ui
             panelDistortion.Name = "panelDistortion";
             panelDistortion.Size = new Size(275, 256);
             panelDistortion.TabIndex = 11;
-            // 
-            // panel6
-            // 
-            panel6.BackColor = Color.FromArgb(25, 30, 40);
-            panel6.BorderStyle = BorderStyle.FixedSingle;
-            panel6.Controls.Add(label18);
-            panel6.Controls.Add(label19);
-            panel6.Controls.Add(label20);
-            panel6.Controls.Add(distortionKnob1);
-            panel6.Controls.Add(distortionKnob2);
-            panel6.Location = new Point(-1, -1);
-            panel6.Name = "panel6";
-            panel6.Size = new Size(275, 256);
-            panel6.TabIndex = 13;
-            // 
-            // label18
-            // 
-            label18.AutoSize = true;
-            label18.Font = new Font("Segoe UI", 14.25F, FontStyle.Regular, GraphicsUnit.Point);
-            label18.ForeColor = Color.White;
-            label18.Location = new Point(166, 178);
-            label18.Name = "label18";
-            label18.Size = new Size(96, 25);
-            label18.TabIndex = 12;
-            label18.Text = "Threshold";
-            // 
-            // label19
-            // 
-            label19.AutoSize = true;
-            label19.Font = new Font("Segoe UI", 14.25F, FontStyle.Regular, GraphicsUnit.Point);
-            label19.ForeColor = Color.White;
-            label19.Location = new Point(18, 178);
-            label19.Name = "label19";
-            label19.Size = new Size(95, 25);
-            label19.TabIndex = 4;
-            label19.Text = "Distortion";
-            // 
-            // label20
-            // 
-            label20.AutoSize = true;
-            label20.Font = new Font("Unispace", 27.7499962F, FontStyle.Bold, GraphicsUnit.Point);
-            label20.ForeColor = Color.White;
-            label20.Location = new Point(14, 20);
-            label20.Name = "label20";
-            label20.Size = new Size(249, 44);
-            label20.TabIndex = 2;
-            label20.Text = "Distortion";
-            // 
-            // distortionKnob1
-            // 
-            distortionKnob1.BackColor = Color.Transparent;
-            distortionKnob1.Fade1 = Color.FromArgb(0, 238, 255);
-            distortionKnob1.Fade2 = Color.FromArgb(0, 255, 51);
-            distortionKnob1.Fade3 = Color.FromArgb(0, 99, 98);
-            distortionKnob1.Location = new Point(163, 91);
-            distortionKnob1.Name = "distortionKnob1";
-            distortionKnob1.Size = new Size(100, 100);
-            distortionKnob1.TabIndex = 7;
-            distortionKnob1.Text = "distortionKnob4";
-            distortionKnob1.Value = 0.1F;
-            // 
-            // distortionKnob2
-            // 
-            distortionKnob2.BackColor = Color.Transparent;
-            distortionKnob2.Fade1 = Color.FromArgb(0, 238, 255);
-            distortionKnob2.Fade2 = Color.FromArgb(0, 255, 51);
-            distortionKnob2.Fade3 = Color.FromArgb(0, 99, 98);
-            distortionKnob2.Location = new Point(13, 91);
-            distortionKnob2.Name = "distortionKnob2";
-            distortionKnob2.Size = new Size(100, 100);
-            distortionKnob2.TabIndex = 6;
-            distortionKnob2.Text = "distortionKnob3";
-            distortionKnob2.Value = 0F;
             // 
             // panel3
             // 
@@ -862,6 +784,7 @@ namespace dfsa.ui
             // 
             panel4.BackColor = Color.FromArgb(25, 30, 40);
             panel4.BorderStyle = BorderStyle.FixedSingle;
+            panel4.Controls.Add(frequencyGainControl1);
             panel4.Controls.Add(oscilloscope);
             panel4.Controls.Add(knobVROU);
             panel4.Controls.Add(label10);
@@ -873,6 +796,14 @@ namespace dfsa.ui
             panel4.Name = "panel4";
             panel4.Size = new Size(395, 520);
             panel4.TabIndex = 20;
+            // 
+            // frequencyGainControl1
+            // 
+            frequencyGainControl1.Location = new Point(3, 177);
+            frequencyGainControl1.Name = "frequencyGainControl1";
+            frequencyGainControl1.Size = new Size(381, 172);
+            frequencyGainControl1.TabIndex = 20;
+            frequencyGainControl1.Text = "frequencyGainControl1";
             // 
             // panel5
             // 
@@ -1167,8 +1098,6 @@ namespace dfsa.ui
             panel2.PerformLayout();
             panelDistortion.ResumeLayout(false);
             panelDistortion.PerformLayout();
-            panel6.ResumeLayout(false);
-            panel6.PerformLayout();
             panel3.ResumeLayout(false);
             panel3.PerformLayout();
             panel4.ResumeLayout(false);
@@ -1186,7 +1115,6 @@ namespace dfsa.ui
 
         private Panel panel1;
         private controls.DistortionKnob knobDelayMix;
-        private controls.DistortionKnob distortionKnob2;
         private Label lbLeaf;
         private Label label4;
         private ContextMenuStrip contextMenuStrip1;
@@ -1246,11 +1174,6 @@ namespace dfsa.ui
         private ToolStripMenuItem disabledToolStripMenuItem;
         private Panel panel4;
         private Panel panel5;
-        private Panel panel6;
-        private Label label18;
-        private Label label19;
-        private Label label20;
-        private controls.DistortionKnob distortionKnob1;
         private Panel panel7;
         private Label label22;
         private Label label23;
@@ -1273,5 +1196,6 @@ namespace dfsa.ui
         private Label label32;
         private Label label31;
         private Label label30;
+        private TweakFX.core.effects.eq.FrequencyGainControl frequencyGainControl1;
     }
 }

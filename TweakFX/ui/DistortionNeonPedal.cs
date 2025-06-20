@@ -232,7 +232,7 @@ namespace dfsa.ui
 
             #region Distortion
 
-            knobThres.ValueChanged += (s, e) => Program.engine.UpdThres(knobThres.Value * 5);
+            knobThres.ValueChanged += (s, e) => { Program.engine.UpdThres(knobThres.Value * 5); Debug.WriteLine(knobThres.Value); };
             knobDist.ValueChanged += (s, e) => Program.engine.UpdDist(knobDist.Value * 10);
 
             #endregion
@@ -296,6 +296,11 @@ namespace dfsa.ui
                 if (buffer != null && buffer.Length > 0)
                 {
                     oscilloscope.UpdateBuffer(buffer);
+                    //equalizerDisplay1.UpdateAudioBuffer(buffer);
+                    //frequencyGainControl1.UpdateFromAudioBuffer(buffer, 44100);
+                    //float[] testGains = new float[] { -6, -3, 0, 2, 5, 3, -2, -5, 0, 6 };
+                    frequencyGainControl1.UpdateFromAudioBuffer(buffer, 44100);
+                    //frequencyGainControl1.Invalidate();
                 }
             };
 
@@ -507,7 +512,7 @@ namespace dfsa.ui
             }
         }
 
-        
+
 
 
 
@@ -633,6 +638,16 @@ namespace dfsa.ui
         }
 
         private void panel7_Paint(object sender, PaintEventArgs e)
+        {
+
+        }
+
+        private void oscilloscope_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void panel1_Paint_1(object sender, PaintEventArgs e)
         {
 
         }
