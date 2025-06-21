@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 namespace TweakFX.core
 {
     using System.Collections.Generic;
+    using TweakFX.core.effects;
 
     public class EffectChain
     {

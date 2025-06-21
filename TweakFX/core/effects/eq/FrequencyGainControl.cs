@@ -135,12 +135,12 @@ namespace TweakFX.core.effects.eq
             int width = Width;
             int height = Height;
 
-            int margin = 10;
-            int availableWidth = width - margin * 2;
-            int availableHeight = height - margin * 2;
+            int margin = 70;
+            int availableWidth = width - margin*2;
+            double availableHeight = height - margin*0.6;
 
             int bandWidth = availableWidth / gains.Length;
-            int maxRectHeight = availableHeight - 40;
+            int maxRectHeight = (int)availableHeight - 70;
 
             for (int i = 0; i < gains.Length; i++)
             {

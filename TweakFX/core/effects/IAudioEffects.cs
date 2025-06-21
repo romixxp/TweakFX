@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TweakFX.core
+namespace TweakFX.core.effects
 {
     public interface IAudioEffect
     {

@@ -299,7 +299,8 @@ namespace dfsa.ui
                     //equalizerDisplay1.UpdateAudioBuffer(buffer);
                     //frequencyGainControl1.UpdateFromAudioBuffer(buffer, 44100);
                     //float[] testGains = new float[] { -6, -3, 0, 2, 5, 3, -2, -5, 0, 6 };
-                    frequencyGainControl1.UpdateFromAudioBuffer(buffer, 44100);
+                    //frequencyGainControl1.UpdateFromAudioBuffer(buffer, 44100);
+                    frequencyGainControl1.UpdateBuffer(LogScale.Process(buffer));
                     //frequencyGainControl1.Invalidate();
                 }
             };
@@ -356,7 +357,7 @@ namespace dfsa.ui
                 }
             };
 
-
+            Program.engine.EQUpdateBands(bands);
             //await Task.Delay(5000);
             //Program.engine.Stop();
             //Thread.Sleep(1000);

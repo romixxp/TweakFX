@@ -14,6 +14,7 @@ using TweakFX.core.effects.spatial;
 using TweakFX.core.effects.dynamics;
 using System.Diagnostics;
 using TweakFX.core.effects.eq;
+using TweakFX.core.effects;
 
 namespace TweakFX.core
 {
@@ -42,10 +43,11 @@ namespace TweakFX.core
         Clipper2 clipper;
         Delay delay;
         Reverb reverb;
-        PitchShifter pitchShifter; // Параметры по умолчанию: 1.0f, 50 мс, 44100 Гц
+        PitchShifter pitchShifter; 
         Spatializer spatializer;
         NoiseReducer noiseReducer;
         Equalizer equalizer;
+        DCOffsetRemover dcOffsetRemover;
         #region Updaters
 
         #region Distortion
@@ -154,6 +156,7 @@ namespace TweakFX.core
             spatializer = new(0f);
             noiseReducer = new NoiseReducer();
             equalizer = new Equalizer(bands, sampleRate: 44100);
+            dcOffsetRemover = new DCOffsetRemover();
             //DistortionNeonPedal form = new();
 
             _effectChain.AddEffect(clipper);
@@ -162,6 +165,7 @@ namespace TweakFX.core
             _effectChain.AddEffect(pitchShifter);
             //_effectChain.AddEffect(spatializer);
             _effectChain.AddEffect(equalizer);
+            _effectChain.AddEffect(dcOffsetRemover);
 
             //_effectChain.AddEffect(noiseReducer);
             /*float[] _buffer = { 0 };
