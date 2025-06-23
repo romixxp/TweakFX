@@ -47,7 +47,6 @@ namespace TweakFX.core
         Spatializer spatializer;
         NoiseReducer noiseReducer;
         Equalizer equalizer;
-        DCOffsetRemover dcOffsetRemover;
         #region Updaters
 
         #region Distortion
@@ -156,7 +155,6 @@ namespace TweakFX.core
             spatializer = new(0f);
             noiseReducer = new NoiseReducer();
             equalizer = new Equalizer(bands, sampleRate: 44100);
-            dcOffsetRemover = new DCOffsetRemover();
             //DistortionNeonPedal form = new();
 
             _effectChain.AddEffect(clipper);
@@ -165,7 +163,7 @@ namespace TweakFX.core
             _effectChain.AddEffect(pitchShifter);
             //_effectChain.AddEffect(spatializer);
             _effectChain.AddEffect(equalizer);
-            _effectChain.AddEffect(dcOffsetRemover);
+            
 
             //_effectChain.AddEffect(noiseReducer);
             /*float[] _buffer = { 0 };
