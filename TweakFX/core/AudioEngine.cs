@@ -47,6 +47,8 @@ namespace TweakFX.core
         Spatializer spatializer;
         NoiseReducer noiseReducer;
         Equalizer equalizer;
+        Compressor compressor;
+
         #region Updaters
 
         #region Distortion
@@ -74,6 +76,18 @@ namespace TweakFX.core
         public void UpdWetMixReverb(float wetMix) => reverb.SetDryWetMix(wetMix, 1f - wetMix);
 
         #endregion
+
+    
+        #region Compressor
+
+        public void UpdThres(float newThres) => compressor.UpdateThres(newThres);
+        public void UpdRatio(float newRatio) => compressor.UpdateRatio(newRatio);
+        public void UpdAttack(float newAttack) => compressor.UpdateAttack(newAttack);
+        public void UpdRelease(float newRelease) => compressor.UpdateRelease(newRelease);
+        public void UpdMakeUp(float newMakeUp) => compressor.UpdateAttack(newMakeUp);
+        
+        #endregion
+
 
         #region Pitch Shifter
 
