@@ -52,16 +52,20 @@ namespace TweakFX.core.effects.dynamics
                 }
                 if (Math.Abs(sample) > _threshold)
                 {
-                    _currentGain = Math.Lerp(_lastGain, 0.0f, _gainChangeSpeed);
+                    _currentGain = Lerp(_lastGain, 0.0f, _gainChangeSpeed);
                 }
                 else
                 {
-                  _currentGain = Math.Lerp(_lastGain, 1.0f, _gainChangeSpeed);
+                  _currentGain = Lerp(_lastGain, 1.0f, _gainChangeSpeed);
                 }
                 buffer[i] = sample * _currentGain;
                 _lastGain = _currentGain;
                 buffer[i] *= _makeupGain;
             }
+        }
+        public float Lerp(float a, float b, float t)
+        {
+            return a + (b - a) * t;
         }
     }
 } 
