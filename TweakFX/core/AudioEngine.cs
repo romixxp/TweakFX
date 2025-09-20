@@ -80,7 +80,7 @@ namespace TweakFX.core
     
         #region Compressor
 
-        public void UpdThres(float newThres) => compressor.UpdateThres(newThres);
+        public void UpdCompThres(float newThres) => compressor.UpdateThres(newThres);
         public void UpdRatio(float newRatio) => compressor.UpdateRatio(newRatio);
         public void UpdAttack(float newAttack) => compressor.UpdateAttack(newAttack);
         public void UpdRelease(float newRelease) => compressor.UpdateRelease(newRelease);
